@@ -1,59 +1,109 @@
-variables = {}
+import re
+import sys
 
-def execute(code):
-    code = code.replace(";", " ; ").replace("=", " = ").replace("+", " + ")
-    tokens = code.split()
-    
-    i = 0
-    while i < len(tokens):
-        token = tokens[i]
+class Token:
+    def __init__(self, type, value):
+        self.type = type
+        self.value = value
 
-        if token == "var":
-            var_name = tokens[i + 1]
-            value = tokens[i + 3]
+class Lexer:
+    def __init__(self, text):
+        self.text = text
+        self.tokens = []
+        self.rules = [
+            ('VAR', r'var'),
+            ('PRINT', r'print'),
+            ('ID', r'[a-zA-Z_][a-zA-Z0-9_]*'),
+            ('NUMBER', r'\d+'),
+            ('ASSIGN', r'='),
+            ('PLUS', r'\+'),
+            ('MINUS', r'-'),
+            ('SEMI', r';'),
+            ('SPACE', r'\s+'),
+        ]
+
+    def tokenize(self):
+        pos = 0
+        while pos < len(self.text):
+            match = None
+            for name, pattern in self.rules:
+                regex = re.compile(pattern)
+                match = regex.match(self.text, pos)
+                if match:
+                    if name != 'SPACE':
+                        self.tokens.append(Token(name, match.group()))
+                    pos = match.end()
+                    break
+            if not match:
+                raise SyntaxError(f"Unknown character at position {pos}")
+        return self.tokens
+
+class Environment:
+    def __init__(self):
+        self.variables = {}
+
+    def set(self, name, value):
+        self.variables[name] = value
+
+    def get(self, name):
+        if name in self.variables:
+            return self.variables[name]
+        raise NameError(f"Variable '{name}' is not defined")
+
+class Interpreter:
+    def __init__(self):
+        self.env = Environment()
+
+    def execute(self, tokens):
+        i = 0
+        while i < len(tokens):
+            token = tokens[i]
+
+            if token.type == 'VAR':
+                name = tokens[i + 1].value
+                i += 3 
+                val = self.evaluate_expression(tokens[i])
+                self.env.set(name, val)
+                i += 2 
             
-            if value.isdigit():
-                variables[var_name] = int(value)
-            else:
-                variables[var_name] = value
+            elif token.type == 'PRINT':
+                val = self.evaluate_expression(tokens[i + 1])
+                print(f"> {val}")
+                i += 3
             
-            i += 4
-
-        elif token == "print":
-            var_name = tokens[i + 1]
-            result = variables.get(var_name, "Error: Variable not found")
-            print("Vertex output:", result)
-            i += 2
-
-        elif i + 1 < len(tokens) and tokens[i + 1] == "=":
-            target = token
-            op1 = tokens[i + 2]
-            
-            if i + 3 < len(tokens) and tokens[i + 3] == "+":
-                op2 = tokens[i + 4]
-                
-                if op1.isdigit():
-                    val1 = int(op1)
-                else:
-                    val1 = variables.get(op1, 0)
-                
-                if op2.isdigit():
-                    val2 = int(op2)
-                else:
-                    val2 = variables.get(op2, 0)
-                
-                variables[target] = val1 + val2
-                i += 5
+            elif token.type == 'ID' and i + 1 < len(tokens) and tokens[i+1].type == 'ASSIGN':
+                name = token.value
+                i += 2
+                val = self.evaluate_expression(tokens[i])
+                self.env.set(name, val)
+                i += 2
             else:
                 i += 1
-        else:
-            i += 1
+
+    def evaluate_expression(self, token):
+        if token.type == 'NUMBER':
+            return int(token.value)
+        if token.type == 'ID':
+            return self.env.get(token.value)
+        return 0
+
+def start_repl():
+    interpreter = Interpreter()
+    print("--- Vertex Language Interface ---")
+    print("Type 'exit' to quit.")
+    while True:
+        try:
+            user_input = input("vertex> ")
+            if user_input.lower() == 'exit':
+                break
+            if not user_input.strip():
+                continue
+            
+            l = Lexer(user_input)
+            tokens = l.tokenize()
+            interpreter.execute(tokens)
+        except Exception as e:
+            print(f"Runtime Error: {e}")
 
 if __name__ == "__main__":
-    example_code = """
-    var age = 15 ;
-    var bonus = 5 ;
-    total = age + bonus ;
-    print total ;
-    """
-    execute(example_code)
+    start_repl()
