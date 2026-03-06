@@ -18,3 +18,12 @@ Chtěl jsem udělat něco, co vypadá jako JavaScript, ale je to jednodušší.
 var x = 50 ;
 print x ;# projekt-interpret---Vertex
 interpret v Pythonu se syntaxí podobnou C/JS
+
+## Instalace a spuštění
+
+Tento projekt používá standard `pyproject.toml`, takže ho lze snadno nainstalovat do systému.
+
+### Instalace
+Otevřete terminál v hlavní složce projektu a spusťte:
+```bash
+pip install .
