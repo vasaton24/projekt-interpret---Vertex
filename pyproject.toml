@@ -1,31 +1,26 @@
 [build-system]
-# Definujeme setuptools jako buildovací systém
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# Základní metadata projektu
 name = "projekt-vertex"
 version = "0.1.0"
 description = "Interpret jazyka Vertex s grafickým rozhraním."
-# Odkaz na tvůj README soubor
+
 readme = "README.md"
 requires-python = ">=3.7"
 authors = [
   { name="vasaton24" }
 ]
-# Kategorie projektu (dobrovolné, ale vypadá to dobře)
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 
-# Definujeme, co se má stát po instalaci
 [project.scripts]
-# Po instalaci budeš moci v terminálu napsat 'vertex-run' a program se spustí
 vertex-run = "main:main"
 
 [tool.setuptools]
-# Říkáme, že náš kód je přímo v hlavním adresáři
+
 py-modules = ["main"]
