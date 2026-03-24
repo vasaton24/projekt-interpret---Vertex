@@ -7,5 +7,5 @@ class VertexSyntaxError(VertexError):
     pass
 
 class VertexRuntimeError(VertexError):
-    """Chyba při běhu (např. dělení nulou)."""
+    """Chyba při běhu."""
     pass
