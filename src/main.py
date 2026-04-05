@@ -1,6 +1,5 @@
 from vertex.lexer import Lexer
-from vertex.interpreter import Interpreter
-from vertex.environment import Environment
+from vertex.interpreter import Interpreter, Environment  
 from vertex.gui import VertexGUI
 from vertex.exceptions import VertexError
 import tkinter as tk
