@@ -15,7 +15,6 @@ Chtěl jsem udělat něco, co vypadá jako moderní JavaScript nebo Python, ale 
 3. **Výstup**: Spodní černé pole ukazuje výsledky příkazů `print` nebo chyby v kódu.
 
 ## Příklad kódu
-```text
 moje_cislo = 10 ;
 dalsi_cislo = 20 ;
 vysledek = moje_cislo + dalsi_cislo * 2 ;
