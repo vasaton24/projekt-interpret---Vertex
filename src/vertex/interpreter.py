@@ -39,30 +39,30 @@ class Interpreter:
             else:
                 i += 1
 
-        def evaluate_expression(self, tokens):
-            if not tokens:
-                return 0
-            res = self.get_value(tokens[0])
-            idx = 1
-            while idx < len(tokens):
-                op = tokens[idx].value
-                next_val = self.get_value(tokens[idx+1])
-                if op == "+":
-                    res += next_val
-                elif op == "-":
-                    res -= next_val
-                elif op == "*":
-                    res *= next_val
-                elif op == "/":
-                    if next_val == 0:
-                        raise VertexRuntimeError("Division by zero!")
-                    res //= next_val
-                idx += 2
-            return res
+    def evaluate_expression(self, tokens):
+        if not tokens:
+            return 0
+        res = self.get_value(tokens[0])
+        idx = 1
+        while idx < len(tokens):
+            op = tokens[idx].value
+            next_val = self.get_value(tokens[idx+1])
+            if op == "+":
+                res += next_val
+            elif op == "-":
+                res -= next_val
+            elif op == "*":
+                res *= next_val
+            elif op == "/":
+                if next_val == 0:
+                    raise VertexRuntimeError("Division by zero!")
+                res //= next_val
+            idx += 2
+        return res
 
-        def get_value(self, token):
-            if token.type == "NUMBER":
-                return int(token.value)
-            if token.type == "ID":
-                return self.env.get(token.value)
-            raise VertexSyntaxError(f"Unexpected token: {token.value}")
+    def get_value(self, token):
+        if token.type == "NUMBER":
+            return int(token.value)
+        if token.type == "ID":
+            return self.env.get(token.value)
+        raise VertexSyntaxError(f"Unexpected token: {token.value}")
