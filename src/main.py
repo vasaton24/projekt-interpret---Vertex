@@ -1,5 +1,5 @@
 from vertex.lexer import Lexer
-from vertex.interpreter import Interpreter, Environment  
+from vertex.interpreter import Interpreter, Environment
 from vertex.gui import VertexGUI
 from vertex.exceptions import VertexError
 import tkinter as tk
@@ -19,9 +19,9 @@ class App:
             interpreter = Interpreter(self.env, self.gui.output)
             interpreter.execute(tokens)
         except VertexError as e:
-            self.gui.output.insert("end", f"SYNTAX ERROR: {e}\n")
+            self.gui.output.insert("end", f"SYNTAX CHYBA: {e}\n")
         except Exception as e:
-            self.gui.output.insert("end", f"SYSTEM ERROR: {e}\n")
+            self.gui.output.insert("end", f"SYSTÉMOVÁ CHYBA: {e}\n")
 
     def start(self):
         self.root.mainloop()
