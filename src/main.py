@@ -1,29 +1,29 @@
+import tkinter as tk
 from vertex.lexer import Lexer
 from vertex.interpreter import Interpreter, Environment
 from vertex.gui import VertexGUI
 from vertex.exceptions import VertexError
-import tkinter as tk
 
 class App:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.env = Environment()
-        self.gui = VertexGUI(self.root, self.run_code)
+    def __init__(self) -> None:
+        self.root: tk.Tk = tk.Tk()
+        self.env: Environment = Environment()
+        self.gui: VertexGUI = VertexGUI(self.root, self.run_code)
 
-    def run_code(self):
+    def run_code(self) -> None:
         self.gui.output.delete("1.0", tk.END)
-        code = self.gui.editor.get("1.0", tk.END)
+        code: str = self.gui.editor.get("1.0", tk.END)
         try:
-            lexer = Lexer(code)
+            lexer: Lexer = Lexer(code)
             tokens = lexer.tokenize()
-            interpreter = Interpreter(self.env, self.gui.output)
+            interpreter: Interpreter = Interpreter(self.env, self.gui.output)
             interpreter.execute(tokens)
         except VertexError as e:
-            self.gui.output.insert("end", f"SYNTAX CHYBA: {e}\n")
+            self.gui.output.insert("end", f"CHYBA: {e}\n")
         except Exception as e:
             self.gui.output.insert("end", f"SYSTÉMOVÁ CHYBA: {e}\n")
 
-    def start(self):
+    def start(self) -> None:
         self.root.mainloop()
 
 if __name__ == "__main__":

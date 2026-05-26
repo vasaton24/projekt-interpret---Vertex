@@ -1,68 +1,106 @@
-from .exceptions import VertexRuntimeError, VertexSyntaxError
+from typing import Dict, Any, List
+from .exceptions import VertexRuntimeError
+from .lexer import Token
+from .parser import (
+    Parser, ASTNode, NumberNode, IdentifierNode, ListNode, IndexNode, BinOpNode,
+    AssignNode, ListAssignNode, PrintNode, IfNode, WhileNode, ForNode, BlockNode
+)
 
 class Environment:
-    def __init__(self):
-        self.variables = {}
+    def __init__(self) -> None:
+        self.variables: Dict[str, Any] = {}
 
-    def set(self, name, value):
+    def set(self, name: str, value: Any) -> None:
         self.variables[name] = value
 
-    def get(self, name):
+    def get(self, name: str) -> Any:
         if name in self.variables:
             return self.variables[name]
         raise VertexRuntimeError(f"Undefined variable '{name}'")
 
 class Interpreter:
-    def __init__(self, env, output_widget):
-        self.env = env
-        self.output_widget = output_widget
+    def __init__(self, env: Environment, output_widget: Any) -> None:
+        self.env: Environment = env
+        self.output_widget: Any = output_widget
 
-    def execute(self, tokens):
-        i = 0
-        while i < len(tokens):
-            t = tokens[i]
-            
-            if t.type == "PRINT":
-                val = self.env.get(tokens[i+1].value) if tokens[i+1].type == "ID" else int(tokens[i+1].value)
-                self.output_widget.insert("end", f"> {val}\n")
-                i += 3
-            elif t.type == "ID" and i + 1 < len(tokens) and tokens[i+1].type == "ASSIGN":
-                name = t.value
-                end = i
-                while end < len(tokens) and tokens[end].type != "SEMI":
-                    end += 1
-                
-                expr_tokens = tokens[i+2 : end]
-                val = self.evaluate_expression(expr_tokens)
-                self.env.set(name, val)
-                i = end + 1
-            else:
-                i += 1
+    def execute(self, tokens: List[Token]) -> None:
+        parser = Parser(tokens)
+        ast = parser.parse()
+        self.evaluate(ast)
 
-    def evaluate_expression(self, tokens):
-        if not tokens:
-            return 0
-        res = self.get_value(tokens[0])
-        idx = 1
-        while idx < len(tokens):
-            op = tokens[idx].value
-            next_val = self.get_value(tokens[idx+1])
-            if op == "+":
-                res += next_val
-            elif op == "-":
-                res -= next_val
-            elif op == "*":
-                res *= next_val
+    def evaluate(self, node: ASTNode) -> Any:
+        if isinstance(node, NumberNode):
+            return node.value
+        elif isinstance(node, IdentifierNode):
+            return self.env.get(node.name)
+        elif isinstance(node, ListNode):
+            return [self.evaluate(el) for el in node.elements]
+        elif isinstance(node, IndexNode):
+            lst = self.evaluate(node.left)
+            idx = self.evaluate(node.index)
+            if not isinstance(lst, list) or not isinstance(idx, int):
+                raise VertexRuntimeError("Invalid index access")
+            try:
+                return lst[idx]
+            except IndexError:
+                raise VertexRuntimeError("Index out of bounds")
+        elif isinstance(node, BinOpNode):
+            left_val = self.evaluate(node.left)
+            right_val = self.evaluate(node.right)
+            op = node.op
+            if op == "+": return left_val + right_val
+            elif op == "-": return left_val - right_val
+            elif op == "*": return left_val * right_val
             elif op == "/":
-                if next_val == 0:
+                if right_val == 0:
                     raise VertexRuntimeError("Division by zero!")
-                res //= next_val
-            idx += 2
-        return res
-
-    def get_value(self, token):
-        if token.type == "NUMBER":
-            return int(token.value)
-        if token.type == "ID":
-            return self.env.get(token.value)
-        raise VertexSyntaxError(f"Unexpected token: {token.value}")
+                return left_val // right_val
+            elif op == "==": return 1 if left_val == right_val else 0
+            elif op == "!=": return 1 if left_val != right_val else 0
+            elif op == "<": return 1 if left_val < right_val else 0
+            elif op == ">": return 1 if left_val > right_val else 0
+            elif op == "<=": return 1 if left_val <= right_val else 0
+            elif op == ">=": return 1 if left_val >= right_val else 0
+        elif isinstance(node, AssignNode):
+            val = self.evaluate(node.value)
+            self.env.set(node.name, val)
+            return val
+        elif isinstance(node, ListAssignNode):
+            lst = self.evaluate(node.left.left)
+            idx = self.evaluate(node.left.index)
+            val = self.evaluate(node.value)
+            if not isinstance(lst, list) or not isinstance(idx, int):
+                raise VertexRuntimeError("Invalid index assignment")
+            try:
+                lst[idx] = val
+            except IndexError:
+                raise VertexRuntimeError("Index out of bounds")
+            return val
+        elif isinstance(node, PrintNode):
+            val = self.evaluate(node.expression)
+            self.output_widget.insert("end", f"> {val}\n")
+            return None
+        elif isinstance(node, IfNode):
+            cond = self.evaluate(node.condition)
+            if cond:
+                self.evaluate(node.then_branch)
+            elif node.else_branch:
+                self.evaluate(node.else_branch)
+            return None
+        elif isinstance(node, WhileNode):
+            while self.evaluate(node.condition):
+                self.evaluate(node.body)
+            return None
+        elif isinstance(node, ForNode):
+            if node.init:
+                self.evaluate(node.init)
+            while node.condition is None or self.evaluate(node.condition):
+                self.evaluate(node.body)
+                if node.update:
+                    self.evaluate(node.update)
+            return None
+        elif isinstance(node, BlockNode):
+            for stmt in node.statements:
+                self.evaluate(stmt)
+            return None
+        raise VertexRuntimeError("Unknown AST node type")

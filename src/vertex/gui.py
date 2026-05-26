@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import scrolledtext
 import json
 import os
+from typing import Callable, Dict, Any
 
 class VertexGUI:
-    def __init__(self, root, run_callback):
-        self.root = root
+    def __init__(self, root: tk.Tk, run_callback: Callable[[], None]) -> None:
+        self.root: tk.Tk = root
         self.root.title("Vertex IDE Pro")
         self.root.geometry("850x650")
         self.root.configure(bg="#1e1e1e")
@@ -14,7 +15,7 @@ class VertexGUI:
         self.root.grid_rowconfigure(3, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
 
-        config = self.load_config()
+        self.config: Dict[str, Any] = self.load_config()
 
         lbl_editor = tk.Label(root, text="KÓD EDITOR", fg="#ffffff", bg="#1e1e1e", font=("Consolas", 10, "bold"))
         lbl_editor.grid(row=0, column=0, sticky="w", padx=15, pady=(15, 5))
@@ -27,7 +28,9 @@ class VertexGUI:
             font=("Consolas", 11)
         )
         self.editor.grid(row=1, column=0, sticky="nsew", padx=15, pady=5)
-        self.editor.insert(tk.END, "x = 10 ;\ny = 20 ;\nz = x + y ;\nprint z ;")
+        
+        default_code = "x = 10 ;\ny = 20 ;\nz = x + y * 20 ;\nprint z ;\n\nprint 10 + 20 + 30 ;\n\nfor (i = 0; i < 3; i = i + 1) {\n    print i ;\n}"
+        self.editor.insert(tk.END, default_code)
 
         self.run_btn = tk.Button(
             root, 
@@ -56,7 +59,7 @@ class VertexGUI:
         )
         self.output.grid(row=4, column=0, sticky="nsew", padx=15, pady=(5, 15))
 
-    def load_config(self):
+    def load_config(self) -> Dict[str, Any]:
         if os.path.exists("config.json"):
             with open("config.json", "r") as f:
                 return json.load(f)
