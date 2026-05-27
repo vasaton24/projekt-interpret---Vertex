@@ -1,3 +1,5 @@
+"""Graphical User Interface module for Vertex IDE."""
+
 import tkinter as tk
 from tkinter import scrolledtext
 import json
@@ -5,7 +7,15 @@ import os
 from typing import Callable, Dict, Any
 
 class VertexGUI:
+    """Class handling the layout and behavior of the main Tkinter window."""
+    
     def __init__(self, root: tk.Tk, run_callback: Callable[[], None]) -> None:
+        """Initialize GUI components.
+        
+        Args:
+            root (tk.Tk): The main Tkinter root window.
+            run_callback (Callable): Function to execute when the Run button is pressed.
+        """
         self.root: tk.Tk = root
         self.root.title("Vertex IDE Pro")
         self.root.geometry("850x650")
@@ -60,6 +70,11 @@ class VertexGUI:
         self.output.grid(row=4, column=0, sticky="nsew", padx=15, pady=(5, 15))
 
     def load_config(self) -> Dict[str, Any]:
+        """Load configuration settings from config.json if it exists.
+        
+        Returns:
+            Dict[str, Any]: A dictionary containing configuration data.
+        """
         if os.path.exists("config.json"):
             with open("config.json", "r") as f:
                 return json.load(f)

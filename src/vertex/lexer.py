@@ -1,18 +1,31 @@
+"""Lexical analyzer module for tokenizing Vertex source code."""
+
 import re
 from typing import List
 from .exceptions import VertexSyntaxError
 
 class Token:
+    """Represents a single lexical token."""
+    
     def __init__(self, type: str, value: str) -> None:
+        """Initialize a Token with its type and string value."""
         self.type: str = type
         self.value: str = value
 
 class Lexer:
+    """Converts raw source code strings into a sequence of Tokens."""
+    
     def __init__(self, text: str) -> None:
+        """Initialize the Lexer with source code."""
         self.text: str = text
         self.tokens: List[Token] = []
 
     def tokenize(self) -> List[Token]:
+        """Scan the input text and generate a list of Token objects.
+        
+        Returns:
+            List[Token]: A list of tokens representing the source code.
+        """
         token_specification = [
             ("NUMBER",   r"\d+"),
             ("PRINT",    r"\bprint\b"),

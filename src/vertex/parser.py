@@ -1,10 +1,11 @@
-"""Parser module with integrated AST nodes."""
+"""Parser module with integrated AST nodes for syntactic analysis."""
 
 from typing import List, Union
 from .exceptions import VertexSyntaxError
 from .lexer import Token
 
 class ASTNode:
+    """Base class for all Abstract Syntax Tree nodes."""
     pass
 
 class NumberNode(ASTNode):
@@ -67,16 +68,21 @@ class BlockNode(ASTNode):
         self.statements: List[ASTNode] = statements
 
 class Parser:
+    """Parses a list of tokens into an Abstract Syntax Tree (AST)."""
+    
     def __init__(self, tokens: List[Token]) -> None:
+        """Initialize parser with token list."""
         self.tokens: List[Token] = tokens
         self.pos: int = 0
 
     def current(self) -> Token:
+        """Return the current token being analyzed."""
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
         return Token("EOF", "")
 
     def consume(self, expected_type: str) -> Token:
+        """Consume the current token if it matches expected_type, else raise syntax error."""
         tok: Token = self.current()
         if tok.type != expected_type:
             raise VertexSyntaxError(f"Expected {expected_type}, got {tok.type}")
@@ -84,12 +90,14 @@ class Parser:
         return tok
 
     def parse(self) -> BlockNode:
+        """Parse the complete token sequence into a root BlockNode."""
         statements: List[ASTNode] = []
         while self.current().type != "EOF":
             statements.append(self.parse_statement())
         return BlockNode(statements)
 
     def parse_statement(self) -> ASTNode:
+        """Parse a single statement or control structure."""
         if self.current().type == "PRINT":
             self.consume("PRINT")
             expr = self.parse_expression()
@@ -138,6 +146,7 @@ class Parser:
             return expr
 
     def parse_block_or_statement(self) -> ASTNode:
+        """Parse a block of statements enclosed in braces, or a single statement."""
         if self.current().type == "LBRACE":
             self.consume("LBRACE")
             statements: List[ASTNode] = []
@@ -148,9 +157,11 @@ class Parser:
         return self.parse_statement()
 
     def parse_expression(self) -> ASTNode:
+        """Parse an assignment or lower-precedence expression."""
         return self.parse_assignment()
 
     def parse_assignment(self) -> ASTNode:
+        """Parse variable or list assignment."""
         expr = self.parse_comparison()
         if self.current().type == "ASSIGN":
             self.consume("ASSIGN")
@@ -163,6 +174,7 @@ class Parser:
         return expr
 
     def parse_comparison(self) -> ASTNode:
+        """Parse equality and relational comparisons."""
         expr = self.parse_term()
         while self.current().type in ("EQ", "NE", "LT", "GT", "LE", "GE"):
             op_tok = self.current()
@@ -172,6 +184,7 @@ class Parser:
         return expr
 
     def parse_term(self) -> ASTNode:
+        """Parse addition and subtraction operations."""
         expr = self.parse_factor()
         while self.current().type in ("PLUS", "MINUS"):
             op_tok = self.current()
@@ -181,6 +194,7 @@ class Parser:
         return expr
 
     def parse_factor(self) -> ASTNode:
+        """Parse multiplication and division operations."""
         expr = self.parse_primary()
         while self.current().type in ("TIMES", "DIVIDE"):
             op_tok = self.current()
@@ -190,6 +204,7 @@ class Parser:
         return expr
 
     def parse_primary(self) -> ASTNode:
+        """Parse primary elements like numbers, identifiers, and parenthesis."""
         tok = self.current()
         if tok.type == "NUMBER":
             self.consume("NUMBER")
