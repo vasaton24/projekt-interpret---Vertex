@@ -33,5 +33,9 @@ class App:
         """Start the main event loop of the application."""
         self.root.mainloop()
 
-if __name__ == "__main__":
+def main() -> None:
+    """Launch the Vertex IDE application."""
     App().start()
+
+if __name__ == "__main__":
+    main()

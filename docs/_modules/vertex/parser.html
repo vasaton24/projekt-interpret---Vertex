@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vertex.parser &#8212; Projekt Vertex  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for vertex.parser</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Parser module with integrated AST nodes for syntactic analysis.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">VertexSyntaxError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.lexer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Token</span>
+
+<div class="viewcode-block" id="ASTNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.ASTNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ASTNode</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all Abstract Syntax Tree nodes.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NumberNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.NumberNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NumberNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents an integer literal in the AST.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="IdentifierNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.IdentifierNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IdentifierNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a named variable reference in the AST.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="ListNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.ListNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ListNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a list literal in the AST.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">]</span> <span class="o">=</span> <span class="n">elements</span></div>
+
+
+<div class="viewcode-block" id="IndexNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.IndexNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IndexNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a list indexing operation in the AST.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">index</span></div>
+
+
+<div class="viewcode-block" id="BinOpNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.BinOpNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BinOpNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a binary operation between two expressions.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">op</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">right</span></div>
+
+
+<div class="viewcode-block" id="AssignNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.AssignNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AssignNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a variable assignment operation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="ListAssignNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.ListAssignNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ListAssignNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents an assignment to a list element.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">IndexNode</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span> <span class="n">IndexNode</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="PrintNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.PrintNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PrintNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a print statement in the AST.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expression</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">expression</span></div>
+
+
+<div class="viewcode-block" id="IfNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.IfNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IfNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a conditional statement with optional else branch.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">,</span> <span class="n">then_branch</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">,</span> <span class="n">else_branch</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">condition</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">then_branch</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">then_branch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">else_branch</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">else_branch</span></div>
+
+
+<div class="viewcode-block" id="WhileNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.WhileNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WhileNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a while loop statement.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">condition</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">body</span></div>
+
+
+<div class="viewcode-block" id="ForNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.ForNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ForNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a for loop statement with initialization, condition, and update.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">update</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">body</span><span class="p">:</span> <span class="n">ASTNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">condition</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">update</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">body</span></div>
+
+
+<div class="viewcode-block" id="BlockNode">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.BlockNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockNode</span><span class="p">(</span><span class="n">ASTNode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a block of statements.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">statements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">]</span> <span class="o">=</span> <span class="n">statements</span></div>
+
+
+<div class="viewcode-block" id="Parser">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Parser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parses a list of tokens into an Abstract Syntax Tree (AST).&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Token</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize parser with token list.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Token</span><span class="p">]</span> <span class="o">=</span> <span class="n">tokens</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Parser.current">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.current">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current token being analyzed.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;EOF&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Parser.consume">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.consume">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Consume the current token if it matches expected_type, else raise syntax error.&quot;&quot;&quot;</span>
+        <span class="n">tok</span><span class="p">:</span> <span class="n">Token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">expected_type</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">VertexSyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">tok</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">tok</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the complete token sequence into a root BlockNode.&quot;&quot;&quot;</span>
+        <span class="n">statements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;EOF&quot;</span><span class="p">:</span>
+            <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_statement</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">BlockNode</span><span class="p">(</span><span class="n">statements</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_statement">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_statement">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse a single statement or control structure.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;PRINT&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;PRINT&quot;</span><span class="p">)</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;SEMI&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">PrintNode</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;IF&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;IF&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;LPAREN&quot;</span><span class="p">)</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;RPAREN&quot;</span><span class="p">)</span>
+            <span class="n">then_branch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_block_or_statement</span><span class="p">()</span>
+            <span class="n">else_branch</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;ELSE&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;ELSE&quot;</span><span class="p">)</span>
+                <span class="n">else_branch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_block_or_statement</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">IfNode</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">then_branch</span><span class="p">,</span> <span class="n">else_branch</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;WHILE&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;WHILE&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;LPAREN&quot;</span><span class="p">)</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;RPAREN&quot;</span><span class="p">)</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_block_or_statement</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">WhileNode</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;FOR&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;FOR&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;LPAREN&quot;</span><span class="p">)</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;SEMI&quot;</span><span class="p">:</span>
+                <span class="n">init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;SEMI&quot;</span><span class="p">)</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;SEMI&quot;</span><span class="p">:</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;SEMI&quot;</span><span class="p">)</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;RPAREN&quot;</span><span class="p">:</span>
+                <span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;RPAREN&quot;</span><span class="p">)</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_block_or_statement</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">ForNode</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">cond</span><span class="p">,</span> <span class="n">update</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;LBRACE&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_block_or_statement</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;SEMI&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">expr</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_block_or_statement">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_block_or_statement">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_block_or_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse a block of statements enclosed in braces, or a single statement.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;LBRACE&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;LBRACE&quot;</span><span class="p">)</span>
+            <span class="n">statements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;RBRACE&quot;</span><span class="p">,</span> <span class="s2">&quot;EOF&quot;</span><span class="p">):</span>
+                <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_statement</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;RBRACE&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BlockNode</span><span class="p">(</span><span class="n">statements</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_statement</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_expression">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_expression">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse an assignment or lower-precedence expression.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_assignment</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_assignment">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_assignment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse variable or list assignment.&quot;&quot;&quot;</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_comparison</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;ASSIGN&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;ASSIGN&quot;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_assignment</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">IdentifierNode</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">AssignNode</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">IndexNode</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">ListAssignNode</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">VertexSyntaxError</span><span class="p">(</span><span class="s2">&quot;Invalid assignment target&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expr</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_comparison">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_comparison">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_comparison</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse equality and relational comparisons.&quot;&quot;&quot;</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_term</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;EQ&quot;</span><span class="p">,</span> <span class="s2">&quot;NE&quot;</span><span class="p">,</span> <span class="s2">&quot;LT&quot;</span><span class="p">,</span> <span class="s2">&quot;GT&quot;</span><span class="p">,</span> <span class="s2">&quot;LE&quot;</span><span class="p">,</span> <span class="s2">&quot;GE&quot;</span><span class="p">):</span>
+            <span class="n">op_tok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_term</span><span class="p">()</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">BinOpNode</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">op_tok</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expr</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_term">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_term">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse addition and subtraction operations.&quot;&quot;&quot;</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_factor</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;PLUS&quot;</span><span class="p">,</span> <span class="s2">&quot;MINUS&quot;</span><span class="p">):</span>
+            <span class="n">op_tok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_factor</span><span class="p">()</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">BinOpNode</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">op_tok</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expr</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_factor">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_factor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse multiplication and division operations.&quot;&quot;&quot;</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_primary</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;TIMES&quot;</span><span class="p">,</span> <span class="s2">&quot;DIVIDE&quot;</span><span class="p">):</span>
+            <span class="n">op_tok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_primary</span><span class="p">()</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">BinOpNode</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">op_tok</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expr</span></div>
+
+
+<div class="viewcode-block" id="Parser.parse_primary">
+<a class="viewcode-back" href="../../vertex.html#vertex.parser.Parser.parse_primary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_primary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ASTNode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse primary elements like numbers, identifiers, and parenthesis.&quot;&quot;&quot;</span>
+        <span class="n">tok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;NUMBER&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;NUMBER&quot;</span><span class="p">)</span>
+            <span class="n">expr</span><span class="p">:</span> <span class="n">ASTNode</span> <span class="o">=</span> <span class="n">NumberNode</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tok</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">tok</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;ID&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;ID&quot;</span><span class="p">)</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">IdentifierNode</span><span class="p">(</span><span class="n">tok</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tok</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;LPAREN&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;LPAREN&quot;</span><span class="p">)</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;RPAREN&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tok</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;LBRACKET&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;LBRACKET&quot;</span><span class="p">)</span>
+            <span class="n">elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ASTNode</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;RBRACKET&quot;</span><span class="p">:</span>
+                <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">())</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;COMMA&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;COMMA&quot;</span><span class="p">)</span>
+                    <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;RBRACKET&quot;</span><span class="p">)</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">VertexSyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected token: </span><span class="si">{</span><span class="n">tok</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;LBRACKET&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;LBRACKET&quot;</span><span class="p">)</span>
+            <span class="n">index_expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_expression</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="s2">&quot;RBRACKET&quot;</span><span class="p">)</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">IndexNode</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">index_expr</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">expr</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Projekt Vertex</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vertex.html">vertex package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, vasaton24.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

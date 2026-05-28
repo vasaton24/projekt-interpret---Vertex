@@ -9,54 +9,76 @@ class ASTNode:
     pass
 
 class NumberNode(ASTNode):
+    """Represents an integer literal in the AST."""
+
     def __init__(self, value: int) -> None:
         self.value: int = value
 
 class IdentifierNode(ASTNode):
+    """Represents a named variable reference in the AST."""
+
     def __init__(self, name: str) -> None:
         self.name: str = name
 
 class ListNode(ASTNode):
+    """Represents a list literal in the AST."""
+
     def __init__(self, elements: List[ASTNode]) -> None:
         self.elements: List[ASTNode] = elements
 
 class IndexNode(ASTNode):
+    """Represents a list indexing operation in the AST."""
+
     def __init__(self, left: ASTNode, index: ASTNode) -> None:
         self.left: ASTNode = left
         self.index: ASTNode = index
 
 class BinOpNode(ASTNode):
+    """Represents a binary operation between two expressions."""
+
     def __init__(self, left: ASTNode, op: str, right: ASTNode) -> None:
         self.left: ASTNode = left
         self.op: str = op
         self.right: ASTNode = right
 
 class AssignNode(ASTNode):
+    """Represents a variable assignment operation."""
+
     def __init__(self, name: str, value: ASTNode) -> None:
         self.name: str = name
         self.value: ASTNode = value
 
 class ListAssignNode(ASTNode):
+    """Represents an assignment to a list element."""
+
     def __init__(self, left: IndexNode, value: ASTNode) -> None:
         self.left: IndexNode = left
         self.value: ASTNode = value
 
 class PrintNode(ASTNode):
+    """Represents a print statement in the AST."""
+
     def __init__(self, expression: ASTNode) -> None:
         self.expression: ASTNode = expression
 
 class IfNode(ASTNode):
+    """Represents a conditional statement with optional else branch."""
+
     def __init__(self, condition: ASTNode, then_branch: ASTNode, else_branch: Union[ASTNode, None]) -> None:
         self.condition: ASTNode = condition
         self.then_branch: ASTNode = then_branch
         self.else_branch: Union[ASTNode, None] = else_branch
 
 class WhileNode(ASTNode):
+    """Represents a while loop statement."""
+
     def __init__(self, condition: ASTNode, body: ASTNode) -> None:
         self.condition: ASTNode = condition
         self.body: ASTNode = body
 
 class ForNode(ASTNode):
+    """Represents a for loop statement with initialization, condition, and update."""
+
     def __init__(self, init: Union[ASTNode, None], condition: Union[ASTNode, None], update: Union[ASTNode, None], body: ASTNode) -> None:
         self.init: Union[ASTNode, None] = init
         self.condition: Union[ASTNode, None] = condition
@@ -64,6 +86,8 @@ class ForNode(ASTNode):
         self.body: ASTNode = body
 
 class BlockNode(ASTNode):
+    """Represents a block of statements."""
+
     def __init__(self, statements: List[ASTNode]) -> None:
         self.statements: List[ASTNode] = statements
 
