@@ -42,6 +42,7 @@ class Lexer:
             ("PLUS",     r"\+"),
             ("MINUS",    r"-"),
             ("TIMES",    r"\*"),
+            ("COMMENT",  r"//.*|/\*[\s\S]*?\*/|#.*"),
             ("DIVIDE",   r"/"),
             ("LT",       r"<"),
             ("GT",       r">"),
@@ -53,6 +54,7 @@ class Lexer:
             ("LBRACKET", r"\["),
             ("RBRACKET", r"\]"),
             ("COMMA",    r","),
+            ("COMMENT",  r"//.*|/\*[\s\S]*?\*/|#.*"),
             ("SKIP",     r"[ \t\n\r]+"),
             ("MISMATCH", r"."),
         ]
@@ -60,7 +62,7 @@ class Lexer:
         for mo in re.finditer(tok_regex, self.text):
             kind: str = mo.lastgroup if mo.lastgroup else "MISMATCH"
             value: str = mo.group()
-            if kind == "SKIP":
+            if kind == "SKIP" or kind == "COMMENT":
                 continue
             elif kind == "MISMATCH":
                 raise VertexSyntaxError(f"Neočekávaný znak: {value}")

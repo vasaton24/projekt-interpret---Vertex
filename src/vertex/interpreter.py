@@ -75,19 +75,31 @@ class Interpreter:
             left_val = self.evaluate(node.left)
             right_val = self.evaluate(node.right)
             op = node.op
-            if op == "+": return left_val + right_val
-            elif op == "-": return left_val - right_val
-            elif op == "*": return left_val * right_val
-            elif op == "/":
-                if right_val == 0:
-                    raise VertexRuntimeError("Division by zero!")
-                return left_val // right_val
-            elif op == "==": return 1 if left_val == right_val else 0
-            elif op == "!=": return 1 if left_val != right_val else 0
-            elif op == "<": return 1 if left_val < right_val else 0
-            elif op == ">": return 1 if left_val > right_val else 0
-            elif op == "<=": return 1 if left_val <= right_val else 0
-            elif op == ">=": return 1 if left_val >= right_val else 0
+            if op == "+":
+                return left_val + right_val
+            if op in ("-", "*", "/"):
+                if not isinstance(left_val, int) or not isinstance(right_val, int):
+                    raise VertexRuntimeError("Arithmetický operand musí být celé číslo")
+                if op == "-":
+                    return left_val - right_val
+                if op == "*":
+                    return left_val * right_val
+                if op == "/":
+                    if right_val == 0:
+                        raise VertexRuntimeError("Division by zero!")
+                    return left_val // right_val
+            elif op == "==":
+                return 1 if left_val == right_val else 0
+            elif op == "!=":
+                return 1 if left_val != right_val else 0
+            elif op == "<":
+                return 1 if left_val < right_val else 0
+            elif op == ">":
+                return 1 if left_val > right_val else 0
+            elif op == "<=":
+                return 1 if left_val <= right_val else 0
+            elif op == ">=":
+                return 1 if left_val >= right_val else 0
         elif isinstance(node, AssignNode):
             val = self.evaluate(node.value)
             self.env.set(node.name, val)
@@ -106,6 +118,10 @@ class Interpreter:
         elif isinstance(node, PrintNode):
             val = self.evaluate(node.expression)
             self.output_widget.insert("end", f"> {val}\n")
+            try:
+                self.output_widget.see("end")
+            except Exception:
+                pass
             return None
         elif isinstance(node, IfNode):
             cond = self.evaluate(node.condition)

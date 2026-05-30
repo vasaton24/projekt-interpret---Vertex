@@ -13,7 +13,8 @@ class App:
         """Initialize the root window, environment, and GUI."""
         self.root: tk.Tk = tk.Tk()
         self.env: Environment = Environment()
-        self.gui: VertexGUI = VertexGUI(self.root, self.run_code)
+        self.gui: VertexGUI = VertexGUI(self.root, self.run_code, self.reset_environment)
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def run_code(self) -> None:
         """Retrieve code from the editor, tokenize, parse, and execute it."""
@@ -28,6 +29,18 @@ class App:
             self.gui.output.insert("end", f"CHYBA: {e}\n")
         except Exception as e:
             self.gui.output.insert("end", f"SYSTÉMOVÁ CHYBA: {e}\n")
+
+    def reset_environment(self) -> None:
+        """Reset the interpreter environment to a clean state."""
+        self.env = Environment()
+        self.gui.update_status("Prostředí bylo resetováno.")
+
+    def on_close(self) -> None:
+        """Save configuration before closing the application."""
+        try:
+            self.gui.save_config()
+        finally:
+            self.root.destroy()
 
     def start(self) -> None:
         """Start the main event loop of the application."""

@@ -219,13 +219,22 @@ class Parser:
 
     def parse_factor(self) -> ASTNode:
         """Parse multiplication and division operations."""
-        expr = self.parse_primary()
+        expr = self.parse_unary()
         while self.current().type in ("TIMES", "DIVIDE"):
             op_tok = self.current()
             self.pos += 1
-            right = self.parse_primary()
+            right = self.parse_unary()
             expr = BinOpNode(expr, op_tok.value, right)
         return expr
+
+    def parse_unary(self) -> ASTNode:
+        """Parse unary plus and minus expressions."""
+        if self.current().type in ("PLUS", "MINUS"):
+            op_tok = self.current()
+            self.pos += 1
+            operand = self.parse_unary()
+            return BinOpNode(NumberNode(0), op_tok.value, operand)
+        return self.parse_primary()
 
     def parse_primary(self) -> ASTNode:
         """Parse primary elements like numbers, identifiers, and parenthesis."""
