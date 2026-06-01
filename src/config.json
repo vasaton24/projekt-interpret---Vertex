@@ -2,5 +2,5 @@
     "theme": "dark",
     "font_size": 11,
     "window_geometry": "850x650+100+100",
-    "last_code": "x = 10 ;\ny = 20 ;\nz = x + y * 20 ;\nprint z ;\n\nprint 10 + 20 + 30 ;\n\nfor (i = 0; i < 3; i = i + 1) {\n    print i ;\n}\n"
+    "last_code": "x = 10 ;\ny = 20 ;\nz = x + y * 20 ;\nprint z ;\n\nprint 10 + 20 + 30 ;\n\nfor (i = 0; i < 3; i = i + 1) {\n    print i ;\n}\nprint \"hey\";\n"
 }
