@@ -14,6 +14,12 @@ class NumberNode(ASTNode):
     def __init__(self, value: int) -> None:
         self.value: int = value
 
+class StringNode(ASTNode):
+    """Represents a string literal in the AST."""
+
+    def __init__(self, value: str) -> None:
+        self.value: str = value
+
 class IdentifierNode(ASTNode):
     """Represents a named variable reference in the AST."""
 
@@ -40,6 +46,13 @@ class BinOpNode(ASTNode):
         self.left: ASTNode = left
         self.op: str = op
         self.right: ASTNode = right
+
+class UnaryOpNode(ASTNode):
+    """Represents a unary operation on a single expression."""
+
+    def __init__(self, op: str, operand: ASTNode) -> None:
+        self.op: str = op
+        self.operand: ASTNode = operand
 
 class AssignNode(ASTNode):
     """Represents a variable assignment operation."""
@@ -103,13 +116,16 @@ class Parser:
         """Return the current token being analyzed."""
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
-        return Token("EOF", "")
+        if self.tokens:
+            last = self.tokens[-1]
+            return Token("EOF", "", last.line, last.column)
+        return Token("EOF", "", 1, 1)
 
     def consume(self, expected_type: str) -> Token:
         """Consume the current token if it matches expected_type, else raise syntax error."""
         tok: Token = self.current()
         if tok.type != expected_type:
-            raise VertexSyntaxError(f"Expected {expected_type}, got {tok.type}")
+            raise VertexSyntaxError(f"Expected {expected_type}, got {tok.type}", tok.line, tok.column)
         self.pos += 1
         return tok
 
@@ -186,7 +202,7 @@ class Parser:
 
     def parse_assignment(self) -> ASTNode:
         """Parse variable or list assignment."""
-        expr = self.parse_comparison()
+        expr = self.parse_logical_or()
         if self.current().type == "ASSIGN":
             self.consume("ASSIGN")
             value = self.parse_assignment()
@@ -194,7 +210,25 @@ class Parser:
                 return AssignNode(expr.name, value)
             elif isinstance(expr, IndexNode):
                 return ListAssignNode(expr, value)
-            raise VertexSyntaxError("Invalid assignment target")
+            raise VertexSyntaxError("Invalid assignment target", self.current().line, self.current().column)
+        return expr
+
+    def parse_logical_or(self) -> ASTNode:
+        expr = self.parse_logical_and()
+        while self.current().type == "OR":
+            op_tok = self.current()
+            self.consume("OR")
+            right = self.parse_logical_and()
+            expr = BinOpNode(expr, op_tok.value, right)
+        return expr
+
+    def parse_logical_and(self) -> ASTNode:
+        expr = self.parse_comparison()
+        while self.current().type == "AND":
+            op_tok = self.current()
+            self.consume("AND")
+            right = self.parse_comparison()
+            expr = BinOpNode(expr, op_tok.value, right)
         return expr
 
     def parse_comparison(self) -> ASTNode:
@@ -228,12 +262,12 @@ class Parser:
         return expr
 
     def parse_unary(self) -> ASTNode:
-        """Parse unary plus and minus expressions."""
-        if self.current().type in ("PLUS", "MINUS"):
+        """Parse unary plus, minus, and logical not expressions."""
+        if self.current().type in ("PLUS", "MINUS", "NOT"):
             op_tok = self.current()
             self.pos += 1
             operand = self.parse_unary()
-            return BinOpNode(NumberNode(0), op_tok.value, operand)
+            return UnaryOpNode(op_tok.value, operand)
         return self.parse_primary()
 
     def parse_primary(self) -> ASTNode:
@@ -245,6 +279,9 @@ class Parser:
         elif tok.type == "ID":
             self.consume("ID")
             expr = IdentifierNode(tok.value)
+        elif tok.type == "STRING":
+            self.consume("STRING")
+            expr = StringNode(tok.value)
         elif tok.type == "LPAREN":
             self.consume("LPAREN")
             expr = self.parse_expression()
@@ -260,7 +297,7 @@ class Parser:
             self.consume("RBRACKET")
             expr = ListNode(elements)
         else:
-            raise VertexSyntaxError(f"Unexpected token: {tok.value}")
+            raise VertexSyntaxError(f"Unexpected token: {tok.value}", tok.line, tok.column)
 
         while self.current().type == "LBRACKET":
             self.consume("LBRACKET")

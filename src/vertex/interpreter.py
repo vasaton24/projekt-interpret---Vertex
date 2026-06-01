@@ -4,8 +4,8 @@ from typing import Dict, Any, List
 from .exceptions import VertexRuntimeError
 from .lexer import Token
 from .parser import (
-    Parser, ASTNode, NumberNode, IdentifierNode, ListNode, IndexNode, BinOpNode,
-    AssignNode, ListAssignNode, PrintNode, IfNode, WhileNode, ForNode, BlockNode
+    Parser, ASTNode, NumberNode, StringNode, IdentifierNode, ListNode, IndexNode, BinOpNode,
+    UnaryOpNode, AssignNode, ListAssignNode, PrintNode, IfNode, WhileNode, ForNode, BlockNode
 )
 
 class Environment:
@@ -58,6 +58,19 @@ class Interpreter:
         """
         if isinstance(node, NumberNode):
             return node.value
+        elif isinstance(node, StringNode):
+            return node.value
+        elif isinstance(node, UnaryOpNode):
+            operand = self.evaluate(node.operand)
+            if node.op == "+":
+                return +operand
+            if node.op == "-":
+                if not isinstance(operand, int):
+                    raise VertexRuntimeError("Arithmetický operand musí být celé číslo")
+                return -operand
+            if node.op == "not":
+                return 1 if not operand else 0
+            raise VertexRuntimeError(f"Unknown unary operator: {node.op}")
         elif isinstance(node, IdentifierNode):
             return self.env.get(node.name)
         elif isinstance(node, ListNode):
@@ -76,7 +89,17 @@ class Interpreter:
             right_val = self.evaluate(node.right)
             op = node.op
             if op == "+":
-                return left_val + right_val
+                if isinstance(left_val, str) and isinstance(right_val, str):
+                    return left_val + right_val
+                if isinstance(left_val, int) and isinstance(right_val, int):
+                    return left_val + right_val
+                if isinstance(left_val, list) and isinstance(right_val, list):
+                    return left_val + right_val
+                raise VertexRuntimeError("Invalid operands for +")
+            if op == "and":
+                return 1 if left_val and right_val else 0
+            if op == "or":
+                return 1 if left_val or right_val else 0
             if op in ("-", "*", "/"):
                 if not isinstance(left_val, int) or not isinstance(right_val, int):
                     raise VertexRuntimeError("Arithmetický operand musí být celé číslo")
