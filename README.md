@@ -60,10 +60,5 @@ Licence
 -------
 Projekt momentálně nemá explicitně přidanou licenci. Pokud chcete projekt otevřít pro jiné, přidejte prosím soubor `LICENSE` s požadovanou licencí.
 
-Kontakt
--------
-Pro otázky otevřete issue v repozitáři nebo mi napište přímo.
-
-----
 
 Datum aktualizace: 2026-06-01
