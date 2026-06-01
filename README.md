@@ -1,30 +1,69 @@
 # Projekt Vertex
 
-Tohle je můj projekt vlastního programovacího jazyka. Jmenuje se Vertex. 
-Chtěl jsem udělat něco, co vypadá jako moderní JavaScript nebo Python, ale je to jednodušší a přehlednější.
+Vertex IDE Pro — jednoduché desktopové IDE s interpretem vlastního jazyka Vertex.
 
-## Co je nového (Level 2)
-- **Bezklíčová syntaxe**: Už nemusíte psát `var`. Stačí rovnou napsat `x = 10 ;`.
-- **Aritmetika**: Vertex už umí počítat! Podporuje sčítání, odčítání, násobení i dělení.
-- **Syntaktická kontrola**: Pokud uděláte chybu (např. dělení nulou nebo neexistující proměnná), program vám to slušně nahlásí v poli VÝSTUP.
-- **Profi vzhled**: IDE má nyní tmavý režim (Dark Mode) a používá programátorské písmo Consolas.
+Krátký popis
+------------
+Vertex je lehký experimentální programovací jazyk a interpret s jednoduchou syntaxí, určený pro učení a rychlé prototypování. Aplikace obsahuje textový editor, panel výstupu a nastavení (téma, velikost písma), která se ukládají do `config.json`.
 
-## Jak to funguje
-1. **Editor**: Horní šedé pole slouží pro psaní kódu.
-2. **RUN**: Tlačítko (nebo klávesa **F5**) spustí váš program.
-3. **Výstup**: Spodní černé pole ukazuje výsledky příkazů `print` nebo chyby v kódu.
+Hlavní vlastnosti
+------------------
+- Editor s podporou uložení a načtení kódu (`.vtx`).
+- Spouštění kódu v integrovaném interpreteru (klávesa `F5`).
+- Nastavení tématu (tmavé/světlé) a velikosti písma, které se ukládají na disk.
+- Reset prostředí i reset nastavení na výchozí hodnoty.
 
-## Příklad kódu
-moje_cislo = 10 ;
-dalsi_cislo = 20 ;
-vysledek = moje_cislo + dalsi_cislo * 2 ;
-print vysledek ;
+Požadavky
+---------
+- Python 3.8+ (doporučeno 3.10+)
+- Tkinter (součást běžné instalace Pythonu)
 
-## Instalace a spuštění
+Spuštění
+--------
+Ze složky projektu spusťte:
 
-Tento projekt používá standard `pyproject.toml`, takže ho lze snadno nainstalovat do systému.
+```bash
+python -m src.main
+```
 
-### Instalace
-Otevřete terminál v hlavní složce projektu a spusťte:
+Pokud chcete nainstalovat balíček lokálně (volitelné):
+
 ```bash
 pip install .
+```
+
+Konfigurace a ukládání
+----------------------
+- Aplikace ukládá nastavení do `config.json` v kořenové složce projektu (odkud spouštíte aplikaci).
+- V dialogu `Nastavení` můžete změnit téma a velikost písma. Po potvrzení se nastavení okamžitě použije a uloží na disk — zobrazí se informační dialog.
+- Po uložení kódu pomocí `Uložit kód jako...` se zobrazí potvrzení o úspěšném uložení.
+
+Krátké ovládání
+---------------
+- `F5` — spustit kód
+- `Ctrl+S` — Uložit kód jako
+
+Struktura projektu
+------------------
+- `src/main.py` — vstupní bod aplikace
+- `src/vertex/gui.py` — grafické rozhraní (Tkinter)
+- `src/vertex/lexer.py` — lexer (tokenizér)
+- `src/vertex/parser.py` — parser a AST
+- `src/vertex/interpreter.py` — vykonavatel AST
+- `src/vertex/exceptions.py` — vlastní výjimky
+
+Přispívání
+----------
+Rád přijmu PR nebo issue. Pro jednoduché příspěvky stačí upravit kód a poslat pull request. Pokud chcete, přidejte i jednoduché testy pro novou funkcionalitu.
+
+Licence
+-------
+Projekt momentálně nemá explicitně přidanou licenci. Pokud chcete projekt otevřít pro jiné, přidejte prosím soubor `LICENSE` s požadovanou licencí.
+
+Kontakt
+-------
+Pro otázky otevřete issue v repozitáři nebo mi napište přímo.
+
+----
+
+Datum aktualizace: 2026-06-01

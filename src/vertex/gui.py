@@ -145,6 +145,11 @@ class VertexGUI:
             with open("config.json", "w", encoding="utf-8") as f:
                 json.dump(self.config, f, indent=4, ensure_ascii=False)
             self.update_status("Nastavení uloženo.")
+            try:
+                messagebox.showinfo("Uloženo", "Nastavení bylo uloženo.")
+            except Exception:
+                # Pokud není možné zobrazit dialog, stačí status
+                pass
         except OSError:
             messagebox.showerror("Chyba", "Nelze uložit konfiguraci do config.json.")
 
@@ -174,6 +179,10 @@ class VertexGUI:
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(self.editor.get("1.0", tk.END).rstrip() + "\n")
                 self.update_status(f"Uloženo {os.path.basename(path)}")
+                try:
+                    messagebox.showinfo("Uloženo", f"Soubor uložen: {os.path.basename(path)}")
+                except Exception:
+                    pass
             except OSError:
                 messagebox.showerror("Chyba", "Nelze uložit soubor.")
 
@@ -196,6 +205,9 @@ class VertexGUI:
         dialog.title("Nastavení Vertex IDE")
         dialog.configure(bg="#1e1e1e")
         dialog.resizable(False, False)
+        dialog.transient(self.root)
+        dialog.grab_set()
+        dialog.focus_force()
 
         tk.Label(dialog, text="Téma:", fg="#ffffff", bg="#1e1e1e", font=("Segoe UI", 10, "bold")).grid(row=0, column=0, sticky="w", padx=15, pady=(15, 5))
 
@@ -207,13 +219,27 @@ class VertexGUI:
         font_size_var = tk.IntVar(value=self.config.get("font_size", 11))
         tk.Spinbox(dialog, from_=8, to=20, textvariable=font_size_var, width=5).grid(row=4, column=0, sticky="w", padx=20)
 
+        # Ukázkový text, aby uživatel viděl změnu písma
+        sample_label = tk.Label(dialog, text="Ukázkový text: 123 ABC xyz", fg="#d4d4d4", bg="#1e1e1e")
+        sample_label.grid(row=4, column=1, sticky="w", padx=10)
+        sample_label.configure(font=("Consolas", font_size_var.get()))
+
         def apply_changes() -> None:
             self.config["theme"] = theme_var.get()
             self.config["font_size"] = font_size_var.get()
             self.editor.configure(font=("Consolas", self.config["font_size"]))
             self.output.configure(font=("Consolas", self.config["font_size"]))
             self.apply_theme()
+            # Uložíme konfiguraci i na disk a informujeme uživatele
             self.update_status("Nastavení upraveno.")
+            try:
+                self.save_config()
+            except Exception:
+                pass
+            try:
+                messagebox.showinfo("Nastavení", "Nastavení bylo upraveno a uloženo.")
+            except Exception:
+                pass
             dialog.destroy()
 
         tk.Button(dialog, text="Uložit", command=apply_changes, bg="#0e639c", fg="white", relief="flat", padx=10, pady=5).grid(row=5, column=0, sticky="e", padx=15, pady=15)
