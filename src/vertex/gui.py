@@ -28,14 +28,22 @@ class VertexGUI:
         self.root.configure(bg="#1e1e1e")
         self.reset_callback = reset_callback
         
-        self.root.grid_rowconfigure(1, weight=3)
-        self.root.grid_rowconfigure(4, weight=2)
+        # Reserve rows: 0=banner, 1=editor label, 2=editor, 3=run button, 4=output label, 5=output, 6=status
+        self.root.grid_rowconfigure(2, weight=3)
+        self.root.grid_rowconfigure(5, weight=2)
         self.root.grid_columnconfigure(0, weight=1)
 
         self.create_menu()
 
+        # Top banner (styled like CSS header)
+        self.banner_frame = tk.Frame(root, bg="#0e639c", height=44)
+        self.banner_frame.grid(row=0, column=0, sticky="ew")
+        self.banner_frame.grid_propagate(False)
+        self.banner_label = tk.Label(self.banner_frame, text="Vertex IDE Pro", fg="#ffffff", bg="#0e639c", font=("Segoe UI", 12, "bold"))
+        self.banner_label.pack(side="left", padx=15, pady=8)
+
         lbl_editor = tk.Label(root, text="KÓD EDITOR", fg="#ffffff", bg="#1e1e1e", font=("Consolas", 10, "bold"))
-        lbl_editor.grid(row=0, column=0, sticky="w", padx=15, pady=(15, 5))
+        lbl_editor.grid(row=1, column=0, sticky="w", padx=15, pady=(12, 5))
         
         self.editor = scrolledtext.ScrolledText(
             root, 
@@ -45,7 +53,7 @@ class VertexGUI:
             font=("Consolas", self.config.get("font_size", 11)),
             wrap="none"
         )
-        self.editor.grid(row=1, column=0, sticky="nsew", padx=15, pady=5)
+        self.editor.grid(row=2, column=0, sticky="nsew", padx=15, pady=5)
         
         self.editor.insert(tk.END, self.config.get("last_code", self.default_code))
 
@@ -60,12 +68,12 @@ class VertexGUI:
             padx=10,
             pady=5
         )
-        self.run_btn.grid(row=2, column=0, pady=15)
+        self.run_btn.grid(row=3, column=0, pady=15)
         self.root.bind("<F5>", lambda e: run_callback())
         self.root.bind("<Control-s>", lambda e: self.save_code_as())
 
         lbl_output = tk.Label(root, text="VÝSTUP", fg="#ffffff", bg="#1e1e1e", font=("Consolas", 10, "bold"))
-        lbl_output.grid(row=3, column=0, sticky="w", padx=15, pady=(10, 5))
+        lbl_output.grid(row=4, column=0, sticky="w", padx=15, pady=(10, 5))
 
         self.output = scrolledtext.ScrolledText(
             root, 
@@ -76,11 +84,11 @@ class VertexGUI:
             relief="sunken",
             wrap="none"
         )
-        self.output.grid(row=4, column=0, sticky="nsew", padx=15, pady=(5, 5))
+        self.output.grid(row=5, column=0, sticky="nsew", padx=15, pady=(5, 5))
 
         self.status_var = tk.StringVar(value="Ready")
         self.status_label = tk.Label(root, textvariable=self.status_var, fg="#d4d4d4", bg="#1e1e1e", font=("Segoe UI", 9))
-        self.status_label.grid(row=5, column=0, sticky="ew", padx=15, pady=(0, 10))
+        self.status_label.grid(row=6, column=0, sticky="ew", padx=15, pady=(0, 10))
 
         self.apply_theme()
 
@@ -135,7 +143,7 @@ class VertexGUI:
                 return self.default_config()
         return self.default_config()
 
-    def save_config(self) -> None:
+    def save_config(self, show_message: bool = True) -> None:
         """Save the current settings and editor contents to config.json."""
         self.config["font_size"] = self.config.get("font_size", 11)
         self.config["theme"] = self.config.get("theme", "dark")
@@ -145,11 +153,12 @@ class VertexGUI:
             with open("config.json", "w", encoding="utf-8") as f:
                 json.dump(self.config, f, indent=4, ensure_ascii=False)
             self.update_status("Nastavení uloženo.")
-            try:
-                messagebox.showinfo("Uloženo", "Nastavení bylo uloženo.")
-            except Exception:
-                # Pokud není možné zobrazit dialog, stačí status
-                pass
+            if show_message:
+                try:
+                    messagebox.showinfo("Uloženo", "Nastavení bylo uloženo.")
+                except Exception:
+                    # Pokud není možné zobrazit dialog, stačí status
+                    pass
         except OSError:
             messagebox.showerror("Chyba", "Nelze uložit konfiguraci do config.json.")
 
@@ -212,15 +221,26 @@ class VertexGUI:
         tk.Label(dialog, text="Téma:", fg="#ffffff", bg="#1e1e1e", font=("Segoe UI", 10, "bold")).grid(row=0, column=0, sticky="w", padx=15, pady=(15, 5))
 
         theme_var = tk.StringVar(value=self.config.get("theme", "dark"))
-        tk.Radiobutton(dialog, text="Tmavé", variable=theme_var, value="dark", fg="#d4d4d4", bg="#1e1e1e", selectcolor="#3c3c3c").grid(row=1, column=0, sticky="w", padx=20)
-        tk.Radiobutton(dialog, text="Světlé", variable=theme_var, value="light", fg="#1e1e1e", bg="#1e1e1e", selectcolor="#d4d4d4").grid(row=2, column=0, sticky="w", padx=20)
+        # Set dialog colors according to currently selected theme so options are visible
+        if theme_var.get() == "light":
+            dlg_bg = "#f3f3f3"
+            dlg_text = "#202020"
+            selectcol = "#d4d4d4"
+        else:
+            dlg_bg = "#1e1e1e"
+            dlg_text = "#d4d4d4"
+            selectcol = "#3c3c3c"
+
+        dialog.configure(bg=dlg_bg)
+        tk.Radiobutton(dialog, text="Tmavé", variable=theme_var, value="dark", fg=dlg_text, bg=dlg_bg, selectcolor=selectcol).grid(row=1, column=0, sticky="w", padx=20)
+        tk.Radiobutton(dialog, text="Světlé", variable=theme_var, value="light", fg=dlg_text, bg=dlg_bg, selectcolor=selectcol).grid(row=2, column=0, sticky="w", padx=20)
 
         tk.Label(dialog, text="Velikost písma:", fg="#ffffff", bg="#1e1e1e", font=("Segoe UI", 10, "bold")).grid(row=3, column=0, sticky="w", padx=15, pady=(10, 5))
         font_size_var = tk.IntVar(value=self.config.get("font_size", 11))
         tk.Spinbox(dialog, from_=8, to=20, textvariable=font_size_var, width=5).grid(row=4, column=0, sticky="w", padx=20)
 
         # Ukázkový text, aby uživatel viděl změnu písma
-        sample_label = tk.Label(dialog, text="Ukázkový text: 123 ABC xyz", fg="#d4d4d4", bg="#1e1e1e")
+        sample_label = tk.Label(dialog, text="Ukázkový text: 123 ABC xyz", fg=dlg_text, bg=dlg_bg)
         sample_label.grid(row=4, column=1, sticky="w", padx=10)
         sample_label.configure(font=("Consolas", font_size_var.get()))
 
@@ -230,17 +250,15 @@ class VertexGUI:
             self.editor.configure(font=("Consolas", self.config["font_size"]))
             self.output.configure(font=("Consolas", self.config["font_size"]))
             self.apply_theme()
-            # Uložíme konfiguraci i na disk a informujeme uživatele
+            # Update sample label font immediately so user sees change
+            sample_label.configure(font=("Consolas", self.config["font_size"]))
             self.update_status("Nastavení upraveno.")
+            # Save configuration (this will show single informational alert)
             try:
                 self.save_config()
             except Exception:
                 pass
-            try:
-                messagebox.showinfo("Nastavení", "Nastavení bylo upraveno a uloženo.")
-            except Exception:
-                pass
-            dialog.destroy()
+            # Do NOT destroy the dialog; let the user close it when ready
 
         tk.Button(dialog, text="Uložit", command=apply_changes, bg="#0e639c", fg="white", relief="flat", padx=10, pady=5).grid(row=5, column=0, sticky="e", padx=15, pady=15)
 
