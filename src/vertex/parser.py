@@ -125,7 +125,7 @@ class Parser:
         """Spotřebuje aktuální token pokud odpovídá očekávanému typu, jinak vyhodí chybu."""
         tok: Token = self.current()
         if tok.type != expected_type:
-            raise VertexSyntaxError(f"Expected {expected_type}, got {tok.type}", tok.line, tok.column)
+            raise VertexSyntaxError(f"Očekáváno {expected_type}, ale bylo {tok.type}", tok.line, tok.column)
         self.pos += 1
         return tok
 
@@ -137,7 +137,7 @@ class Parser:
         return BlockNode(statements)
 
     def parse_statement(self) -> ASTNode:
-        """Parse a single statement or control structure."""
+        """Zpracuje jeden příkaz nebo řídící strukturu."""
         if self.current().type == "PRINT":
             self.consume("PRINT")
             expr = self.parse_expression()
@@ -186,7 +186,7 @@ class Parser:
             return expr
 
     def parse_block_or_statement(self) -> ASTNode:
-        """Parse a block of statements enclosed in braces, or a single statement."""
+        """Zpracuje blok příkazů v závorkách nebo jediný příkaz."""
         if self.current().type == "LBRACE":
             self.consume("LBRACE")
             statements: List[ASTNode] = []
@@ -197,11 +197,11 @@ class Parser:
         return self.parse_statement()
 
     def parse_expression(self) -> ASTNode:
-        """Parse an assignment or lower-precedence expression."""
+        """Zpracuje přiřazení nebo výraz s nižší prioritou."""
         return self.parse_assignment()
 
     def parse_assignment(self) -> ASTNode:
-        """Parse variable or list assignment."""
+        """Zpracuje přiřazení proměnné nebo prvku seznamu."""
         expr = self.parse_logical_or()
         if self.current().type == "ASSIGN":
             self.consume("ASSIGN")
@@ -210,7 +210,7 @@ class Parser:
                 return AssignNode(expr.name, value)
             elif isinstance(expr, IndexNode):
                 return ListAssignNode(expr, value)
-            raise VertexSyntaxError("Invalid assignment target", self.current().line, self.current().column)
+            raise VertexSyntaxError("Neplatný cíl přiřazení", self.current().line, self.current().column)
         return expr
 
     def parse_logical_or(self) -> ASTNode:
@@ -232,7 +232,7 @@ class Parser:
         return expr
 
     def parse_comparison(self) -> ASTNode:
-        """Parse equality and relational comparisons."""
+        """Zpracuje porovnání rovnosti a relačních operací."""
         expr = self.parse_term()
         while self.current().type in ("EQ", "NE", "LT", "GT", "LE", "GE"):
             op_tok = self.current()
@@ -242,7 +242,7 @@ class Parser:
         return expr
 
     def parse_term(self) -> ASTNode:
-        """Parse addition and subtraction operations."""
+        """Zpracuje operace sčítání a odčítání."""
         expr = self.parse_factor()
         while self.current().type in ("PLUS", "MINUS"):
             op_tok = self.current()
@@ -252,7 +252,7 @@ class Parser:
         return expr
 
     def parse_factor(self) -> ASTNode:
-        """Parse multiplication and division operations."""
+        """Zpracuje operace násobení a dělení."""
         expr = self.parse_unary()
         while self.current().type in ("TIMES", "DIVIDE"):
             op_tok = self.current()
@@ -262,7 +262,7 @@ class Parser:
         return expr
 
     def parse_unary(self) -> ASTNode:
-        """Parse unary plus, minus, and logical not expressions."""
+        """Zpracuje unární operace plus, minus a logické not."""
         if self.current().type in ("PLUS", "MINUS", "NOT"):
             op_tok = self.current()
             self.pos += 1
@@ -271,7 +271,7 @@ class Parser:
         return self.parse_primary()
 
     def parse_primary(self) -> ASTNode:
-        """Parse primary elements like numbers, identifiers, and parenthesis."""
+        """Zpracuje primární prvky jako čísla, identifikátory a závorky."""
         tok = self.current()
         if tok.type == "NUMBER":
             self.consume("NUMBER")
@@ -297,7 +297,7 @@ class Parser:
             self.consume("RBRACKET")
             expr = ListNode(elements)
         else:
-            raise VertexSyntaxError(f"Unexpected token: {tok.value}", tok.line, tok.column)
+            raise VertexSyntaxError(f"Neočekávaný token: {tok.value}", tok.line, tok.column)
 
         while self.current().type == "LBRACKET":
             self.consume("LBRACKET")

@@ -27,7 +27,7 @@ class Environment:
         """
         if name in self.variables:
             return self.variables[name]
-        raise VertexRuntimeError(f"Undefined variable '{name}'")
+        raise VertexRuntimeError(f"Nedefinovaná proměnná '{name}'")
 
 class Interpreter:
     """Vykonává AST vytvořené parserem."""
@@ -53,7 +53,7 @@ class Interpreter:
         Args:
             node (ASTNode): Uzel, který se má vyhodnotit.
 
-        Returns:
+        Vrací:
             Any: Výsledek vyhodnocení podle typu uzlu.
         """
         if isinstance(node, NumberNode):
@@ -70,7 +70,7 @@ class Interpreter:
                 return -operand
             if node.op == "not":
                 return 1 if not operand else 0
-            raise VertexRuntimeError(f"Unknown unary operator: {node.op}")
+            raise VertexRuntimeError(f"Neznámý unární operátor: {node.op}")
         elif isinstance(node, IdentifierNode):
             return self.env.get(node.name)
         elif isinstance(node, ListNode):
@@ -79,11 +79,11 @@ class Interpreter:
             lst = self.evaluate(node.left)
             idx = self.evaluate(node.index)
             if not isinstance(lst, list) or not isinstance(idx, int):
-                raise VertexRuntimeError("Invalid index access")
+                raise VertexRuntimeError("Neplatný přístup k indexu")
             try:
                 return lst[idx]
             except IndexError:
-                raise VertexRuntimeError("Index out of bounds")
+                raise VertexRuntimeError("Index mimo rozsah")
         elif isinstance(node, BinOpNode):
             left_val = self.evaluate(node.left)
             right_val = self.evaluate(node.right)
@@ -95,7 +95,7 @@ class Interpreter:
                     return left_val + right_val
                 if isinstance(left_val, list) and isinstance(right_val, list):
                     return left_val + right_val
-                raise VertexRuntimeError("Invalid operands for +")
+                raise VertexRuntimeError("Neplatné operandy pro +")
             if op == "and":
                 return 1 if left_val and right_val else 0
             if op == "or":
@@ -109,7 +109,7 @@ class Interpreter:
                     return left_val * right_val
                 if op == "/":
                     if right_val == 0:
-                        raise VertexRuntimeError("Division by zero!")
+                        raise VertexRuntimeError("Dělení nulou!")
                     return left_val // right_val
             elif op == "==":
                 return 1 if left_val == right_val else 0
@@ -132,11 +132,11 @@ class Interpreter:
             idx = self.evaluate(node.left.index)
             val = self.evaluate(node.value)
             if not isinstance(lst, list) or not isinstance(idx, int):
-                raise VertexRuntimeError("Invalid index assignment")
+                raise VertexRuntimeError("Neplatné přiřazení do indexu")
             try:
                 lst[idx] = val
             except IndexError:
-                raise VertexRuntimeError("Index out of bounds")
+                raise VertexRuntimeError("Index mimo rozsah")
             return val
         elif isinstance(node, PrintNode):
             val = self.evaluate(node.expression)
@@ -169,4 +169,4 @@ class Interpreter:
             for stmt in node.statements:
                 self.evaluate(stmt)
             return None
-        raise VertexRuntimeError("Unknown AST node type")
+        raise VertexRuntimeError("Neznámý typ AST uzlu")

@@ -7,7 +7,7 @@ import os
 from typing import Callable, Dict, Any
 
 class VertexGUI:
-    """Class handling the layout and behavior of the main Tkinter window."""
+    """Třída řídící rozložení a chování hlavního okna Tkinter."""
     
     def __init__(self, root: tk.Tk, run_callback: Callable[[], None], reset_callback: Callable[[], None]) -> None:
         """Inicializuje GUI, úvodní obrazovku a hlavní editor.

@@ -21,10 +21,10 @@ class Lexer:
         self.tokens: List[Token] = []
 
     def tokenize(self) -> List[Token]:
-        """Scan the input text and generate a list of Token objects.
+        """Projde vstupní text a vytvoří seznam tokenů.
         
-        Returns:
-            List[Token]: A list of tokens representing the source code.
+        Vrací:
+            List[Token]: Seznam tokenů reprezentujících zdrojový kód.
         """
         token_specification = [
             ("NUMBER",   r"\d+"),
