@@ -59,8 +59,5 @@ Struktura projektu
 - `src/vertex/exceptions.py` — vlastní chybové výjimky
 - `src/config.json` — ukládání nastavení aplikace (pokud existuje)
 
-Licence
--------
-Projekt aktuálně nemá definovanou licenci. Pokud chcete repozitář zpřístupnit veřejně, doporučuji přidat soubor `LICENSE` s vybranou licencí.
 
 Datum aktualizace: 2026-06-07
