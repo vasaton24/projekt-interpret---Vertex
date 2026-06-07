@@ -83,7 +83,7 @@ Struktura projektu
 - `src/vertex/parser.py` — parser a AST uzly
 - `src/vertex/interpreter.py` — vykonavatel AST
 - `src/vertex/exceptions.py` — vlastní chybové výjimky
-- `src/config.json` — ukládání nastavení aplikace (pokud existuje)
+- `src/config.json` — ukládání nastavení aplikace
 
 Licence
 -------
