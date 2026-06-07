@@ -1,46 +1,46 @@
-"""Parser module with integrated AST nodes for syntactic analysis."""
+"""Parser modul s definicí AST uzlů pro syntaktickou analýzu."""
 
 from typing import List, Union
 from .exceptions import VertexSyntaxError
 from .lexer import Token
 
 class ASTNode:
-    """Base class for all Abstract Syntax Tree nodes."""
+    """Základní třída pro uzly abstraktního syntaktického stromu."""
     pass
 
 class NumberNode(ASTNode):
-    """Represents an integer literal in the AST."""
+    """Reprezentuje celočíselnou literál v AST."""
 
     def __init__(self, value: int) -> None:
         self.value: int = value
 
 class StringNode(ASTNode):
-    """Represents a string literal in the AST."""
+    """Reprezentuje řetězcový literál v AST."""
 
     def __init__(self, value: str) -> None:
         self.value: str = value
 
 class IdentifierNode(ASTNode):
-    """Represents a named variable reference in the AST."""
+    """Reprezentuje pojmenovaný odkaz na proměnnou v AST."""
 
     def __init__(self, name: str) -> None:
         self.name: str = name
 
 class ListNode(ASTNode):
-    """Represents a list literal in the AST."""
+    """Reprezentuje literál seznamu v AST."""
 
     def __init__(self, elements: List[ASTNode]) -> None:
         self.elements: List[ASTNode] = elements
 
 class IndexNode(ASTNode):
-    """Represents a list indexing operation in the AST."""
+    """Reprezentuje indexování seznamu v AST."""
 
     def __init__(self, left: ASTNode, index: ASTNode) -> None:
         self.left: ASTNode = left
         self.index: ASTNode = index
 
 class BinOpNode(ASTNode):
-    """Represents a binary operation between two expressions."""
+    """Reprezentuje binární operaci mezi dvěma výrazy."""
 
     def __init__(self, left: ASTNode, op: str, right: ASTNode) -> None:
         self.left: ASTNode = left
@@ -48,34 +48,34 @@ class BinOpNode(ASTNode):
         self.right: ASTNode = right
 
 class UnaryOpNode(ASTNode):
-    """Represents a unary operation on a single expression."""
+    """Reprezentuje unární operaci nad jedním výrazem."""
 
     def __init__(self, op: str, operand: ASTNode) -> None:
         self.op: str = op
         self.operand: ASTNode = operand
 
 class AssignNode(ASTNode):
-    """Represents a variable assignment operation."""
+    """Reprezentuje přiřazení proměnné."""
 
     def __init__(self, name: str, value: ASTNode) -> None:
         self.name: str = name
         self.value: ASTNode = value
 
 class ListAssignNode(ASTNode):
-    """Represents an assignment to a list element."""
+    """Reprezentuje přiřazení prvku seznamu."""
 
     def __init__(self, left: IndexNode, value: ASTNode) -> None:
         self.left: IndexNode = left
         self.value: ASTNode = value
 
 class PrintNode(ASTNode):
-    """Represents a print statement in the AST."""
+    """Reprezentuje tiskový příkaz v AST."""
 
     def __init__(self, expression: ASTNode) -> None:
         self.expression: ASTNode = expression
 
 class IfNode(ASTNode):
-    """Represents a conditional statement with optional else branch."""
+    """Reprezentuje podmíněný příkaz s volitelnou větví else."""
 
     def __init__(self, condition: ASTNode, then_branch: ASTNode, else_branch: Union[ASTNode, None]) -> None:
         self.condition: ASTNode = condition
@@ -83,14 +83,14 @@ class IfNode(ASTNode):
         self.else_branch: Union[ASTNode, None] = else_branch
 
 class WhileNode(ASTNode):
-    """Represents a while loop statement."""
+    """Reprezentuje while smyčku."""
 
     def __init__(self, condition: ASTNode, body: ASTNode) -> None:
         self.condition: ASTNode = condition
         self.body: ASTNode = body
 
 class ForNode(ASTNode):
-    """Represents a for loop statement with initialization, condition, and update."""
+    """Reprezentuje for smyčku s inicializací, podmínkou a aktualizací."""
 
     def __init__(self, init: Union[ASTNode, None], condition: Union[ASTNode, None], update: Union[ASTNode, None], body: ASTNode) -> None:
         self.init: Union[ASTNode, None] = init
@@ -99,21 +99,21 @@ class ForNode(ASTNode):
         self.body: ASTNode = body
 
 class BlockNode(ASTNode):
-    """Represents a block of statements."""
+    """Reprezentuje blok příkazů."""
 
     def __init__(self, statements: List[ASTNode]) -> None:
         self.statements: List[ASTNode] = statements
 
 class Parser:
-    """Parses a list of tokens into an Abstract Syntax Tree (AST)."""
-    
+    """Parsuje seznam tokenů do abstraktního syntaktického stromu (AST)."""
+
     def __init__(self, tokens: List[Token]) -> None:
-        """Initialize parser with token list."""
+        """Inicializuje parser se seznamem tokenů."""
         self.tokens: List[Token] = tokens
         self.pos: int = 0
 
     def current(self) -> Token:
-        """Return the current token being analyzed."""
+        """Vrací právě analyzovaný token."""
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
         if self.tokens:
@@ -122,7 +122,7 @@ class Parser:
         return Token("EOF", "", 1, 1)
 
     def consume(self, expected_type: str) -> Token:
-        """Consume the current token if it matches expected_type, else raise syntax error."""
+        """Spotřebuje aktuální token pokud odpovídá očekávanému typu, jinak vyhodí chybu."""
         tok: Token = self.current()
         if tok.type != expected_type:
             raise VertexSyntaxError(f"Expected {expected_type}, got {tok.type}", tok.line, tok.column)
@@ -130,7 +130,7 @@ class Parser:
         return tok
 
     def parse(self) -> BlockNode:
-        """Parse the complete token sequence into a root BlockNode."""
+        """Parsuje kompletní posloupnost tokenů do kořenového BlockNode."""
         statements: List[ASTNode] = []
         while self.current().type != "EOF":
             statements.append(self.parse_statement())

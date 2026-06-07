@@ -1,4 +1,4 @@
-"""Main entry point for the Vertex IDE application."""
+"""Hlavní vstupní bod aplikace Vertex IDE."""
 
 import tkinter as tk
 from vertex.lexer import Lexer
@@ -7,17 +7,17 @@ from vertex.gui import VertexGUI
 from vertex.exceptions import VertexError, VertexSyntaxError
 
 class App:
-    """Main application class tying together the GUI, Lexer, Parser, and Interpreter."""
+    """Hlavní třída aplikace spojující GUI, lexer, parser a interpret."""
     
     def __init__(self) -> None:
-        """Initialize the root window, environment, and GUI."""
+        """Inicializuje hlavní okno, prostředí a rozhraní GUI."""
         self.root: tk.Tk = tk.Tk()
         self.env: Environment = Environment()
         self.gui: VertexGUI = VertexGUI(self.root, self.run_code, self.reset_environment)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def run_code(self) -> None:
-        """Retrieve code from the editor, tokenize, parse, and execute it."""
+        """Získá kód z editoru, provede tokenizaci a vykonání."""
         self.gui.output.delete("1.0", tk.END)
         self.gui.clear_error_highlight()
         code: str = self.gui.editor.get("1.0", tk.END)
@@ -37,23 +37,23 @@ class App:
             self.gui.output.insert("end", f"SYSTÉMOVÁ CHYBA: {e}\n")
 
     def reset_environment(self) -> None:
-        """Reset the interpreter environment to a clean state."""
+        """Obnoví prostředí interpretu do výchozího stavu."""
         self.env = Environment()
         self.gui.update_status("Prostředí bylo resetováno.")
 
     def on_close(self) -> None:
-        """Save configuration before closing the application."""
+        """Uloží konfiguraci při ukončení aplikace."""
         try:
             self.gui.save_config()
         finally:
             self.root.destroy()
 
     def start(self) -> None:
-        """Start the main event loop of the application."""
+        """Spustí hlavní událostní smyčku aplikace."""
         self.root.mainloop()
 
 def main() -> None:
-    """Launch the Vertex IDE application."""
+    """Spustí aplikaci Vertex IDE."""
     App().start()
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
-"""Custom exceptions used across the Vertex interpreter."""
+"""Vlastní výjimky používané v interpretu Vertex."""
 
 class VertexError(Exception):
-    """Base class for all custom Vertex errors."""
+    """Základní třída pro vlastní chyby Vertex."""
     pass
 
 class VertexSyntaxError(VertexError):
-    """Raised when the Lexer or Parser encounters invalid syntax."""
+    """Vyvolá se při chybné syntaxi v lexeru nebo parseru."""
 
     def __init__(self, message: str, line: int | None = None, column: int | None = None) -> None:
         self.message: str = message
@@ -19,7 +19,7 @@ class VertexSyntaxError(VertexError):
         return self.message
 
 class VertexRuntimeError(VertexError):
-    """Raised when an error occurs during the execution of the AST."""
+    """Vyvolá se při chybě během vykonávání AST."""
 
     def __init__(self, message: str, line: int | None = None, column: int | None = None) -> None:
         self.message: str = message

@@ -1,24 +1,22 @@
-"""Lexical analyzer module for tokenizing Vertex source code."""
+"""Lexikální analyzátor pro zdrojový kód jazyka Vertex."""
 
 import re
 from typing import List
 from .exceptions import VertexSyntaxError
 
 class Token:
-    """Represents a single lexical token."""
-    
+    """Token s typem, hodnotou a pozicí ve zdroji."""
+
     def __init__(self, type: str, value: str, line: int = 1, column: int = 1) -> None:
-        """Initialize a Token with its type, string value, and source position."""
         self.type: str = type
         self.value: str = value
         self.line: int = line
         self.column: int = column
 
 class Lexer:
-    """Converts raw source code strings into a sequence of Tokens."""
-    
+    """Převádí vstupní text na posloupnost tokenů."""
+
     def __init__(self, text: str) -> None:
-        """Initialize the Lexer with source code."""
         self.text: str = text
         self.tokens: List[Token] = []
 
@@ -48,7 +46,7 @@ class Lexer:
             ("PLUS",     r"\+"),
             ("MINUS",    r"-"),
             ("TIMES",    r"\*"),
-            ("COMMENT",  r"//.*|/\*[\s\S]*?\*/|#.*"),  # Tento jeden si tu nech
+            ("COMMENT",  r"//.*|/\*[\s\S]*?\*/|#.*"),
             ("DIVIDE",   r"/"),
             ("LT",       r"<"),
             ("GT",       r">"),

@@ -286,7 +286,6 @@ class VertexGUI:
         tk.Label(dialog, text="Téma:", fg="#ffffff", bg="#1e1e1e", font=("Segoe UI", 10, "bold")).grid(row=0, column=0, sticky="w", padx=15, pady=(15, 5))
 
         theme_var = tk.StringVar(value=self.config.get("theme", "dark"))
-        # Set dialog colors according to currently selected theme so options are visible
         if theme_var.get() == "light":
             dlg_bg = "#f3f3f3"
             dlg_text = "#202020"
@@ -297,8 +296,10 @@ class VertexGUI:
             selectcol = "#3c3c3c"
 
         dialog.configure(bg=dlg_bg)
-        tk.Radiobutton(dialog, text="Tmavé", variable=theme_var, value="dark", fg=dlg_text, bg=dlg_bg, selectcolor=selectcol).grid(row=1, column=0, sticky="w", padx=20)
-        tk.Radiobutton(dialog, text="Světlé", variable=theme_var, value="light", fg=dlg_text, bg=dlg_bg, selectcolor=selectcol).grid(row=2, column=0, sticky="w", padx=20)
+        rb_dark = tk.Radiobutton(dialog, text="Tmavé", variable=theme_var, value="dark", fg=dlg_text, bg=dlg_bg, selectcolor=selectcol)
+        rb_dark.grid(row=1, column=0, sticky="w", padx=20)
+        rb_light = tk.Radiobutton(dialog, text="Světlé", variable=theme_var, value="light", fg=dlg_text, bg=dlg_bg, selectcolor=selectcol)
+        rb_light.grid(row=2, column=0, sticky="w", padx=20)
 
         tk.Label(dialog, text="Velikost písma:", fg="#ffffff", bg="#1e1e1e", font=("Segoe UI", 10, "bold")).grid(row=3, column=0, sticky="w", padx=15, pady=(10, 5))
         font_size_var = tk.IntVar(value=self.config.get("font_size", 11))
@@ -307,6 +308,25 @@ class VertexGUI:
         sample_label = tk.Label(dialog, text="Ukázkový text: 123 ABC xyz", fg=dlg_text, bg=dlg_bg)
         sample_label.grid(row=4, column=1, sticky="w", padx=10)
         sample_label.configure(font=("Consolas", font_size_var.get()))
+
+        def on_theme_change(*_args) -> None:
+            if theme_var.get() == "light":
+                new_bg = "#f3f3f3"
+                new_text = "#202020"
+                new_select = "#d4d4d4"
+            else:
+                new_bg = "#1e1e1e"
+                new_text = "#d4d4d4"
+                new_select = "#3c3c3c"
+            try:
+                dialog.configure(bg=new_bg)
+                rb_dark.configure(bg=new_bg, fg=new_text, selectcolor=new_select)
+                rb_light.configure(bg=new_bg, fg=new_text, selectcolor=new_select)
+                sample_label.configure(bg=new_bg, fg=new_text)
+            except Exception:
+                pass
+
+        theme_var.trace("w", on_theme_change)
 
         def apply_changes() -> None:
             self.config["theme"] = theme_var.get()
@@ -340,7 +360,8 @@ class VertexGUI:
         for widget in [self.status_label]:
             widget.configure(bg=bg, fg=text)
         self.editor.configure(bg=editor_bg, fg=text, insertbackground=text)
-        self.output.configure(bg=output_bg, fg="#a3dda3", insertbackground=text)
+        output_fg = "#a3dda3" if theme != "light" else "#064e04"
+        self.output.configure(bg=output_bg, fg=output_fg, insertbackground=text)
 
     def clear_error_highlight(self) -> None:
         try:
@@ -352,11 +373,18 @@ class VertexGUI:
         if line is None:
             return
         self.clear_error_highlight()
-        self.editor.tag_configure("vertex_error", background="#ffcccc")
+        if self.config.get("theme", "dark") == "light":
+            err_bg = "#ffcccc"
+            err_fg = "#800000"
+        else:
+            err_bg = "#6b0000"
+            err_fg = "#ffffff"
+        self.editor.tag_configure("vertex_error", background=err_bg, foreground=err_fg)
         start = f"{line}.0"
         end = f"{line}.end"
         try:
             self.editor.tag_add("vertex_error", start, end)
+            self.editor.see(start)
         except Exception:
             pass
 
