@@ -1,4 +1,4 @@
-"""Graphical User Interface module for Vertex IDE."""
+"""Grafické uživatelské rozhraní Vertex IDE: úvodní stránka a editor."""
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, messagebox
@@ -10,15 +10,15 @@ class VertexGUI:
     """Class handling the layout and behavior of the main Tkinter window."""
     
     def __init__(self, root: tk.Tk, run_callback: Callable[[], None], reset_callback: Callable[[], None]) -> None:
-        """Initialize GUI components.
-        
-        Args:
-            root (tk.Tk): The main Tkinter root window.
-            run_callback (Callable): Function to execute when the Run button is pressed.
-            reset_callback (Callable): Function to execute when environment reset is requested.
+        """Inicializuje GUI, úvodní obrazovku a hlavní editor.
+
+        Parametry:
+            root: hlavní okno tkinter
+            run_callback: callback pro spuštění kódu
+            reset_callback: callback pro reset prostředí
         """
         self.root: tk.Tk = root
-        self.root.title("Vertex IDE Pro")
+        self.root.title("Vertex IDE Pro - Nový soubor")
         self.default_code: str = (
             "x = 10 ;\ny = 20 ;\nz = x + y * 20 ;\nprint z ;\n\nprint 10 + 20 + 30 ;\n\n"
             "for (i = 0; i < 3; i = i + 1) {\n    print i ;\n}"
@@ -27,26 +27,80 @@ class VertexGUI:
         self.root.geometry(self.config.get("window_geometry", "850x650+100+100"))
         self.root.configure(bg="#1e1e1e")
         self.reset_callback = reset_callback
-        
-        # Reserve rows: 0=banner, 1=editor label, 2=editor, 3=run button, 4=output label, 5=output, 6=status
-        self.root.grid_rowconfigure(2, weight=3)
-        self.root.grid_rowconfigure(5, weight=2)
+        self.run_callback = run_callback
+
+        self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
 
         self.create_menu()
+        self.create_intro_screen()
+        self.create_main_screen()
+        self.show_intro_screen()
+        self.apply_theme()
 
-        # Top banner (styled like CSS header)
-        self.banner_frame = tk.Frame(root, bg="#0e639c", height=44)
+    def create_intro_screen(self) -> None:
+        self.intro_frame = tk.Frame(self.root, bg="#1e1e1e")
+        self.intro_frame.grid(row=0, column=0, sticky="nsew")
+
+        title = tk.Label(
+            self.intro_frame,
+            text="Vítejte v Vertex IDE Pro",
+            fg="#ffffff",
+            bg="#1e1e1e",
+            font=("Segoe UI", 18, "bold")
+        )
+        title.pack(pady=(80, 10))
+
+        subtitle = tk.Label(
+            self.intro_frame,
+            text="Rychlý interpret jazyka Vertex. Klikněte na tlačítko pro otevření editoru.",
+            fg="#d4d4d4",
+            bg="#1e1e1e",
+            font=("Segoe UI", 11)
+        )
+        subtitle.pack(pady=(0, 30), padx=40)
+
+        start_btn = tk.Button(
+            self.intro_frame,
+            text="Otevřít Vertex editor",
+            command=self.show_main_screen,
+            bg="#0e639c",
+            fg="white",
+            font=("Segoe UI", 12, "bold"),
+            relief="flat",
+            padx=20,
+            pady=10
+        )
+        start_btn.pack()
+
+        hint = tk.Label(
+            self.intro_frame,
+            text="Můžete také použít klávesu F5 pro spuštění kódu, až budete v editoru.",
+            fg="#a3a3a3",
+            bg="#1e1e1e",
+            font=("Segoe UI", 9)
+        )
+        hint.pack(pady=(20, 0))
+
+    def create_main_screen(self) -> None:
+        self.main_frame = tk.Frame(self.root, bg="#1e1e1e")
+        self.main_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.banner_frame = tk.Frame(self.main_frame, bg="#0e639c", height=44)
         self.banner_frame.grid(row=0, column=0, sticky="ew")
         self.banner_frame.grid_propagate(False)
         self.banner_label = tk.Label(self.banner_frame, text="Vertex IDE Pro", fg="#ffffff", bg="#0e639c", font=("Segoe UI", 12, "bold"))
         self.banner_label.pack(side="left", padx=15, pady=8)
 
-        lbl_editor = tk.Label(root, text="KÓD EDITOR", fg="#ffffff", bg="#1e1e1e", font=("Consolas", 10, "bold"))
+        self.main_frame.grid_rowconfigure(2, weight=3)
+        self.main_frame.grid_rowconfigure(5, weight=2)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        lbl_editor = tk.Label(self.main_frame, text="KÓD EDITOR", fg="#ffffff", bg="#1e1e1e", font=("Consolas", 10, "bold"))
         lbl_editor.grid(row=1, column=0, sticky="w", padx=15, pady=(12, 5))
         
         self.editor = scrolledtext.ScrolledText(
-            root, 
+            self.main_frame, 
             bg="#2d2d2d", 
             fg="#d4d4d4", 
             insertbackground="white",
@@ -54,13 +108,12 @@ class VertexGUI:
             wrap="none"
         )
         self.editor.grid(row=2, column=0, sticky="nsew", padx=15, pady=5)
-        
         self.editor.insert(tk.END, self.config.get("last_code", self.default_code))
 
         self.run_btn = tk.Button(
-            root, 
+            self.main_frame, 
             text="SPUSTIT KÓD (F5)", 
-            command=run_callback, 
+            command=self.run_callback, 
             bg="#0e639c", 
             fg="white",
             font=("Segoe UI", 10, "bold"),
@@ -69,14 +122,14 @@ class VertexGUI:
             pady=5
         )
         self.run_btn.grid(row=3, column=0, pady=15)
-        self.root.bind("<F5>", lambda e: run_callback())
+        self.root.bind("<F5>", lambda e: self.run_callback())
         self.root.bind("<Control-s>", lambda e: self.save_code_as())
 
-        lbl_output = tk.Label(root, text="VÝSTUP", fg="#ffffff", bg="#1e1e1e", font=("Consolas", 10, "bold"))
+        lbl_output = tk.Label(self.main_frame, text="VÝSTUP", fg="#ffffff", bg="#1e1e1e", font=("Consolas", 10, "bold"))
         lbl_output.grid(row=4, column=0, sticky="w", padx=15, pady=(10, 5))
 
         self.output = scrolledtext.ScrolledText(
-            root, 
+            self.main_frame, 
             bg="#1e1e1e", 
             fg="#a3dda3", 
             insertbackground="white",
@@ -87,38 +140,53 @@ class VertexGUI:
         self.output.grid(row=5, column=0, sticky="nsew", padx=15, pady=(5, 5))
 
         self.status_var = tk.StringVar(value="Ready")
-        self.status_label = tk.Label(root, textvariable=self.status_var, fg="#d4d4d4", bg="#1e1e1e", font=("Segoe UI", 9))
+        self.status_label = tk.Label(self.main_frame, textvariable=self.status_var, fg="#d4d4d4", bg="#1e1e1e", font=("Segoe UI", 9))
         self.status_label.grid(row=6, column=0, sticky="ew", padx=15, pady=(0, 10))
 
-        self.apply_theme()
+    def show_intro_screen(self) -> None:
+        try:
+            self.root.config(menu="")
+        except Exception:
+            pass
+        self.main_frame.grid_remove()
+        self.intro_frame.grid()
+        self.update_status("Vítejte. Klikněte na tlačítko pro otevření editoru.")
+
+    def show_main_screen(self) -> None:
+        try:
+            self.root.config(menu=self.menu_bar)
+        except Exception:
+            pass
+        self.intro_frame.grid_remove()
+        self.main_frame.grid()
+        self.update_status("Editor je připraven. Použijte F5 pro spuštění.")
 
     def create_menu(self) -> None:
-        menu_bar = tk.Menu(self.root)
+        self.menu_bar = tk.Menu(self.root)
 
-        file_menu = tk.Menu(menu_bar, tearoff=0)
+        file_menu = tk.Menu(self.menu_bar, tearoff=0)
         file_menu.add_command(label="Otevřít kód...", command=self.open_file)
         file_menu.add_command(label="Uložit kód jako...", command=self.save_code_as)
+        file_menu.add_command(label="Exportovat výstup...", command=self.export_output)
         file_menu.add_separator()
         file_menu.add_command(label="Uložit nastavení", command=self.save_config)
         file_menu.add_command(label="Resetovat nastavení", command=self.reset_settings)
         file_menu.add_separator()
         file_menu.add_command(label="Ukončit", command=self.root.quit)
-        menu_bar.add_cascade(label="Soubor", menu=file_menu)
+        self.menu_bar.add_cascade(label="Soubor", menu=file_menu)
 
-        edit_menu = tk.Menu(menu_bar, tearoff=0)
+        edit_menu = tk.Menu(self.menu_bar, tearoff=0)
         edit_menu.add_command(label="Vyčistit výstup", command=self.clear_output)
         edit_menu.add_command(label="Resetovat prostředí", command=self.reset_callback)
-        menu_bar.add_cascade(label="Upravit", menu=edit_menu)
+        self.menu_bar.add_cascade(label="Upravit", menu=edit_menu)
 
-        settings_menu = tk.Menu(menu_bar, tearoff=0)
+        settings_menu = tk.Menu(self.menu_bar, tearoff=0)
         settings_menu.add_command(label="Nastavení", command=self.open_settings_dialog)
-        menu_bar.add_cascade(label="Nastavení", menu=settings_menu)
+        self.menu_bar.add_cascade(label="Nastavení", menu=settings_menu)
 
-        help_menu = tk.Menu(menu_bar, tearoff=0)
+        help_menu = tk.Menu(self.menu_bar, tearoff=0)
         help_menu.add_command(label="O aplikaci", command=self.show_about)
-        menu_bar.add_cascade(label="Nápověda", menu=help_menu)
-
-        self.root.config(menu=menu_bar)
+        self.menu_bar.add_cascade(label="Nápověda", menu=help_menu)
 
     def default_config(self) -> Dict[str, Any]:
         return {
@@ -129,11 +197,7 @@ class VertexGUI:
         }
 
     def load_config(self) -> Dict[str, Any]:
-        """Load configuration settings from config.json if it exists.
-        
-        Returns:
-            Dict[str, Any]: A dictionary containing configuration data.
-        """
+        """Načte konfiguraci z config.json nebo použije výchozí hodnoty."""
         if os.path.exists("config.json"):
             try:
                 with open("config.json", "r", encoding="utf-8") as f:
@@ -144,7 +208,7 @@ class VertexGUI:
         return self.default_config()
 
     def save_config(self, show_message: bool = True) -> None:
-        """Save the current settings and editor contents to config.json."""
+        """Uloží konfiguraci do config.json."""
         self.config["font_size"] = self.config.get("font_size", 11)
         self.config["theme"] = self.config.get("theme", "dark")
         self.config["window_geometry"] = self.root.geometry()
@@ -157,7 +221,6 @@ class VertexGUI:
                 try:
                     messagebox.showinfo("Uloženo", "Nastavení bylo uloženo.")
                 except Exception:
-                    # Pokud není možné zobrazit dialog, stačí status
                     pass
         except OSError:
             messagebox.showerror("Chyba", "Nelze uložit konfiguraci do config.json.")
@@ -174,6 +237,7 @@ class VertexGUI:
                 self.editor.delete("1.0", tk.END)
                 self.editor.insert(tk.END, code)
                 self.update_status(f"Načteno {os.path.basename(path)}")
+                self.root.title(f"Vertex IDE Pro - {os.path.basename(path)}")
             except OSError:
                 messagebox.showerror("Chyba", "Nelze načíst soubor.")
 
@@ -192,6 +256,7 @@ class VertexGUI:
                     messagebox.showinfo("Uloženo", f"Soubor uložen: {os.path.basename(path)}")
                 except Exception:
                     pass
+                self.root.title(f"Vertex IDE Pro - {os.path.basename(path)}")
             except OSError:
                 messagebox.showerror("Chyba", "Nelze uložit soubor.")
 
@@ -239,7 +304,6 @@ class VertexGUI:
         font_size_var = tk.IntVar(value=self.config.get("font_size", 11))
         tk.Spinbox(dialog, from_=8, to=20, textvariable=font_size_var, width=5).grid(row=4, column=0, sticky="w", padx=20)
 
-        # Ukázkový text, aby uživatel viděl změnu písma
         sample_label = tk.Label(dialog, text="Ukázkový text: 123 ABC xyz", fg=dlg_text, bg=dlg_bg)
         sample_label.grid(row=4, column=1, sticky="w", padx=10)
         sample_label.configure(font=("Consolas", font_size_var.get()))
@@ -250,15 +314,12 @@ class VertexGUI:
             self.editor.configure(font=("Consolas", self.config["font_size"]))
             self.output.configure(font=("Consolas", self.config["font_size"]))
             self.apply_theme()
-            # Update sample label font immediately so user sees change
             sample_label.configure(font=("Consolas", self.config["font_size"]))
             self.update_status("Nastavení upraveno.")
-            # Save configuration (this will show single informational alert)
             try:
                 self.save_config()
             except Exception:
                 pass
-            # Do NOT destroy the dialog; let the user close it when ready
 
         tk.Button(dialog, text="Uložit", command=apply_changes, bg="#0e639c", fg="white", relief="flat", padx=10, pady=5).grid(row=5, column=0, sticky="e", padx=15, pady=15)
 
@@ -280,6 +341,42 @@ class VertexGUI:
             widget.configure(bg=bg, fg=text)
         self.editor.configure(bg=editor_bg, fg=text, insertbackground=text)
         self.output.configure(bg=output_bg, fg="#a3dda3", insertbackground=text)
+
+    def clear_error_highlight(self) -> None:
+        try:
+            self.editor.tag_remove("vertex_error", "1.0", tk.END)
+        except Exception:
+            pass
+
+    def highlight_error(self, line: int | None) -> None:
+        if line is None:
+            return
+        self.clear_error_highlight()
+        self.editor.tag_configure("vertex_error", background="#ffcccc")
+        start = f"{line}.0"
+        end = f"{line}.end"
+        try:
+            self.editor.tag_add("vertex_error", start, end)
+        except Exception:
+            pass
+
+    def export_output(self) -> None:
+        path = filedialog.asksaveasfilename(
+            title="Exportovat výstup",
+            defaultextension=".txt",
+            filetypes=[("Textové soubory", "*.txt"), ("Všechny soubory", "*")],
+        )
+        if path:
+            try:
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(self.output.get("1.0", tk.END))
+                self.update_status(f"Výstup exportován: {os.path.basename(path)}")
+                try:
+                    messagebox.showinfo("Exportováno", "Výstup byl uložen.")
+                except Exception:
+                    pass
+            except OSError:
+                messagebox.showerror("Chyba", "Nelze exportovat výstup.")
 
     def update_status(self, message: str) -> None:
         self.status_var.set(message)

@@ -4,7 +4,7 @@ import tkinter as tk
 from vertex.lexer import Lexer
 from vertex.interpreter import Interpreter, Environment
 from vertex.gui import VertexGUI
-from vertex.exceptions import VertexError
+from vertex.exceptions import VertexError, VertexSyntaxError
 
 class App:
     """Main application class tying together the GUI, Lexer, Parser, and Interpreter."""
@@ -19,14 +19,20 @@ class App:
     def run_code(self) -> None:
         """Retrieve code from the editor, tokenize, parse, and execute it."""
         self.gui.output.delete("1.0", tk.END)
+        self.gui.clear_error_highlight()
         code: str = self.gui.editor.get("1.0", tk.END)
         try:
             lexer: Lexer = Lexer(code)
             tokens = lexer.tokenize()
             interpreter: Interpreter = Interpreter(self.env, self.gui.output)
             interpreter.execute(tokens)
+            self.gui.clear_error_highlight()
         except VertexError as e:
-            self.gui.output.insert("end", f"CHYBA: {e}\n")
+            if isinstance(e, VertexSyntaxError):
+                self.gui.output.insert("end", f"CHYBA: {e}\n")
+                self.gui.highlight_error(e.line)
+            else:
+                self.gui.output.insert("end", f"CHYBA: {e}\n")
         except Exception as e:
             self.gui.output.insert("end", f"SYSTÉMOVÁ CHYBA: {e}\n")
 
