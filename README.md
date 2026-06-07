@@ -1,22 +1,25 @@
 # Projekt Vertex
 
-Vertex IDE Pro — jednoduché desktopové IDE s interpretem vlastního jazyka Vertex.
+Vertex IDE Pro je jednoduché desktopové IDE s interpretem vlastního jazyka Vertex. Projekt je určený pro experimentální výuku, rychlé prototypování a testování malých programů.
 
-Krátký popis
-------------
-Vertex je lehký experimentální programovací jazyk a interpret s jednoduchou syntaxí, určený pro učení a rychlé prototypování. Aplikace obsahuje textový editor, panel výstupu a nastavení (téma, velikost písma), která se ukládají do `config.json`.
+Popis projektu
+--------------
+Aplikace obsahuje textový editor, panel výstupu a základní nastavení, které se ukládá do souboru `config.json`. Podporuje tmavé i světlé téma, dynamické zvýraznění chyb, export výstupu a uložení/nahrání `.vtx` souborů.
 
-Hlavní vlastnosti
-------------------
-- Editor s podporou uložení a načtení kódu (`.vtx`).
-- Spouštění kódu v integrovaném interpreteru (klávesa `F5`).
-- Nastavení tématu (tmavé/světlé) a velikosti písma, které se ukládají na disk.
-- Reset prostředí i reset nastavení na výchozí hodnoty.
+Hlavní funkce
+--------------
+- Editor s uložením a načtením kódu (`.vtx`).
+- Spuštění kódu integrovaným interpreterem pomocí klávesy `F5`.
+- Zobrazení chyb syntaxe a zvýraznění příslušného řádku v editoru.
+- Export textového výstupu do souboru `.txt`.
+- Nastavení tématu (tmavé/světlé) a velikosti písma.
+- Hlavní obrazovka / úvodní stránka bez horního menu.
+- Ukládání a načítání výchozí konfigurace aplikace.
 
 Požadavky
 ---------
 - Python 3.8+ (doporučeno 3.10+)
-- Tkinter (součást běžné instalace Pythonu)
+- Tkinter (součást většiny instalací Pythonu)
 
 Spuštění
 --------
@@ -26,39 +29,38 @@ Ze složky projektu spusťte:
 python -m src.main
 ```
 
-Pokud chcete nainstalovat balíček lokálně (volitelné):
+Pokud preferujete instalaci jako balíček, můžete použít:
 
 ```bash
 pip install .
 ```
 
-Konfigurace a ukládání
-----------------------
-- Aplikace ukládá nastavení do `config.json` v kořenové složce projektu (odkud spouštíte aplikaci).
-- V dialogu `Nastavení` můžete změnit téma a velikost písma. Po potvrzení se nastavení okamžitě použije a uloží na disk — zobrazí se informační dialog.
-- Po uložení kódu pomocí `Uložit kód jako...` se zobrazí potvrzení o úspěšném uložení.
+Poznámka: Aplikace očekává, že soubor `config.json` bude čitelný a zapisovatelný v kořenové složce projektu.
 
-Krátké ovládání
+Nastavení a ukládání
+--------------------
+- Konfigurace se ukládá do `config.json`.
+- Dialog `Nastavení` umožňuje změnit téma a velikost písma.
+- Změny se po potvrzení ihned projeví v editoru a výstupu.
+- Výstup lze exportovat jako textový soubor pomocí položky `Exportovat výstup...`.
+
+Rychlé ovládání
 ---------------
 - `F5` — spustit kód
-- `Ctrl+S` — Uložit kód jako
+- `Ctrl+S` — uložit kód jako
 
 Struktura projektu
 ------------------
-- `src/main.py` — vstupní bod aplikace
-- `src/vertex/gui.py` — grafické rozhraní (Tkinter)
-- `src/vertex/lexer.py` — lexer (tokenizér)
-- `src/vertex/parser.py` — parser a AST
+- `src/main.py` — hlavní vstupní bod aplikace
+- `src/vertex/gui.py` — grafické rozhraní v Tkinteru
+- `src/vertex/lexer.py` — lexer, který převádí text na tokeny
+- `src/vertex/parser.py` — parser a AST uzly
 - `src/vertex/interpreter.py` — vykonavatel AST
-- `src/vertex/exceptions.py` — vlastní výjimky
-
-Přispívání
-----------
-Rád přijmu PR nebo issue. Pro jednoduché příspěvky stačí upravit kód a poslat pull request. Pokud chcete, přidejte i jednoduché testy pro novou funkcionalitu.
+- `src/vertex/exceptions.py` — vlastní chybové výjimky
+- `src/config.json` — ukládání nastavení aplikace (pokud existuje)
 
 Licence
 -------
-Projekt momentálně nemá explicitně přidanou licenci. Pokud chcete projekt otevřít pro jiné, přidejte prosím soubor `LICENSE` s požadovanou licencí.
+Projekt aktuálně nemá definovanou licenci. Pokud chcete repozitář zpřístupnit veřejně, doporučuji přidat soubor `LICENSE` s vybranou licencí.
 
-
-Datum aktualizace: 2026-06-01
+Datum aktualizace: 2026-06-07
