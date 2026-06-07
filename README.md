@@ -85,11 +85,9 @@ Struktura projektu
 - `src/vertex/exceptions.py` — vlastní chybové výjimky
 - `src/config.json` — ukládání nastavení aplikace (pokud existuje)
 
-<<<<<<< HEAD
 Licence
 -------
 Tento projekt je licencován pod MIT licencí. Podrobnosti jsou v souboru `LICENSE`.
 =======
->>>>>>> 6820f10cb9fbd7728178f765db5e62d41f847458
 
 Datum aktualizace: 2026-06-07
