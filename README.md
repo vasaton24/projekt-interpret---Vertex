@@ -88,6 +88,5 @@ Struktura projektu
 Licence
 -------
 Tento projekt je licencován pod MIT licencí. Podrobnosti jsou v souboru `LICENSE`.
-=======
 
 Datum aktualizace: 2026-06-07
